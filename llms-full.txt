@@ -1376,25 +1376,27 @@ Only default plugins support being disabled. Non-default plugins can simply be o
 
 This table lists the built-in plugins and where they come from.
 
-| Plugin name  | Default | Source                                                                                                                                                                                                                                                       |
-| ------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `eslint`     | Yes     | [ESLint](https://eslint.org/) core rules                                                                                                                                                                                                                     |
-| `typescript` | Yes     | TypeScript rules from [typescript-eslint](https://typescript-eslint.io/) (aka `@typescript-eslint/plugin`). Type-aware rules are available using [the type-aware mode](./type-aware.md).                                                                     |
-| `unicorn`    | Yes     | [eslint-plugin-unicorn](https://github.com/sindresorhus/eslint-plugin-unicorn)                                                                                                                                                                               |
-| `react`      | No      | [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react), [eslint-plugin-react-hooks](https://www.npmx.dev/package/eslint-plugin-react-hooks), and [eslint-plugin-react-refresh](https://github.com/ArnaudBarre/eslint-plugin-react-refresh) |
-| `react-perf` | No      | [eslint-plugin-react-perf](https://github.com/cvazac/eslint-plugin-react-perf)                                                                                                                                                                               |
-| `nextjs`     | No      | [@next/eslint-plugin-next](https://www.npmx.dev/package/@next/eslint-plugin-next)                                                                                                                                                                            |
-| `oxc`        | Yes     | Oxc-specific rules and selected rules ported from deepscan                                                                                                                                                                                                   |
-| `import`     | No      | [eslint-plugin-import](https://github.com/import-js/eslint-plugin-import) (also equivalent to [eslint-plugin-import-x](https://github.com/un-ts/eslint-plugin-import-x))                                                                                     |
-| `jsdoc`      | No      | [eslint-plugin-jsdoc](https://github.com/gajus/eslint-plugin-jsdoc)                                                                                                                                                                                          |
-| `jsx-a11y`   | No      | [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y)                                                                                                                                                                               |
-| `node`       | No      | [eslint-plugin-n](https://github.com/eslint-community/eslint-plugin-n)                                                                                                                                                                                       |
-| `promise`    | No      | [eslint-plugin-promise](https://github.com/eslint-community/eslint-plugin-promise)                                                                                                                                                                           |
-| `jest`       | No      | [eslint-plugin-jest](https://github.com/jest-community/eslint-plugin-jest)                                                                                                                                                                                   |
-| `vitest`     | No      | [@vitest/eslint-plugin](https://github.com/vitest-dev/eslint-plugin-vitest) aka eslint-plugin-vitest                                                                                                                                                         |
-| `vue`        | No      | [eslint-plugin-vue](https://eslint.vuejs.org/) rules that work with script tags                                                                                                                                                                              |
+| Plugin name  | Default | Source                                                                                                                                                                                                                                                         |
+| ------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `eslint`     | Yes     | [ESLint](https://eslint.org/) core rules                                                                                                                                                                                                                       |
+| `typescript` | Yes     | TypeScript rules from [typescript-eslint](https://typescript-eslint.io/) (aka `@typescript-eslint/plugin`). Type-aware rules are available using [the type-aware mode](./type-aware.md).                                                                       |
+| `unicorn`    | Yes     | [eslint-plugin-unicorn](https://github.com/sindresorhus/eslint-plugin-unicorn)                                                                                                                                                                                 |
+| `react`      | No      | [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react), [eslint-plugin-react-hooks](https://www.npmx.dev/package/eslint-plugin-react-hooks)\*, and [eslint-plugin-react-refresh](https://github.com/ArnaudBarre/eslint-plugin-react-refresh) |
+| `react-perf` | No      | [eslint-plugin-react-perf](https://github.com/cvazac/eslint-plugin-react-perf)                                                                                                                                                                                 |
+| `nextjs`     | No      | [@next/eslint-plugin-next](https://www.npmx.dev/package/@next/eslint-plugin-next)                                                                                                                                                                              |
+| `oxc`        | Yes     | Oxc-specific rules and selected rules ported from deepscan                                                                                                                                                                                                     |
+| `import`     | No      | [eslint-plugin-import](https://github.com/import-js/eslint-plugin-import) (also equivalent to [eslint-plugin-import-x](https://github.com/un-ts/eslint-plugin-import-x))                                                                                       |
+| `jsdoc`      | No      | [eslint-plugin-jsdoc](https://github.com/gajus/eslint-plugin-jsdoc)                                                                                                                                                                                            |
+| `jsx-a11y`   | No      | [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y)                                                                                                                                                                                 |
+| `node`       | No      | [eslint-plugin-n](https://github.com/eslint-community/eslint-plugin-n)                                                                                                                                                                                         |
+| `promise`    | No      | [eslint-plugin-promise](https://github.com/eslint-community/eslint-plugin-promise)                                                                                                                                                                             |
+| `jest`       | No      | [eslint-plugin-jest](https://github.com/jest-community/eslint-plugin-jest)                                                                                                                                                                                     |
+| `vitest`     | No      | [@vitest/eslint-plugin](https://github.com/vitest-dev/eslint-plugin-vitest) aka eslint-plugin-vitest                                                                                                                                                           |
+| `vue`        | No      | [eslint-plugin-vue](https://eslint.vuejs.org/) rules that work with script tags                                                                                                                                                                                |
 
 For the current status of rule coverage, see the linter [product plan issue](https://github.com/oxc-project/oxc/issues/481). For framework and file type support, see the [compatibility matrix](/compatibility).
+
+\* eslint-plugin-react-hooks does not implement the compiler rules by default. Please check [here](https://github.com/TheAlexLichter/oxlint-react-compiler-rules) for an example on how to do this.
 
 ## Adding new plugins
 
@@ -1776,6 +1778,239 @@ Arguments:
   Prints help information
 * **`-V`**, **`--version`** —
   Prints version information
+
+---
+
+---
+url: /docs/guide/usage/formatter/config.md
+description: Configure Oxfmt using a .oxfmtrc.json file.
+---
+
+# Configuration
+
+Oxfmt works out of the box, but most teams commit a configuration file to keep formatting consistent across local runs, editors, and CI.
+
+This page focuses on project configuration: formatting options, ignore patterns, and experimental features.
+
+## Create a config file
+
+To generate a starter config in the current directory:
+
+```sh
+oxfmt --init
+```
+
+Oxfmt automatically looks for the following files starting from the directory of the file being formatted and walking up the tree:
+
+* `.oxfmtrc.json`
+* `.oxfmtrc.jsonc`
+* `oxfmt.config.ts`
+
+The nearest config file to each formatted file wins. This means you can place different config files at different levels of your project tree.
+For example, a root config for the whole repo and a more specific one inside a subdirectory:
+
+```
+my-repo/
+├── oxfmt.config.ts         # default for the whole repo
+├── src/
+│   └── app.ts              # uses root config
+└── packages/
+    └── fancy-app/
+        ├── .oxfmtrc.json   # overrides for this package
+        └── index.ts        # uses packages/fancy-app/.oxfmtrc.json
+```
+
+If you don't need nested config, pass `--disable-nested-config` to only look upward from the current working directory. This is faster because Oxfmt can resolve the config once instead of per file.
+
+You can also pass a config explicitly with `-c`, which also disables nested config lookup. This accepts any supported format (`.json`, `.jsonc`, `.ts`, `.mts`, `.cts`, `.js`, `.mjs`, `.cjs`):
+
+```sh
+oxfmt -c path/to/yourconfig.json
+```
+
+A minimal JSON configuration looks like this:
+
+```json [.oxfmtrc.json]
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 80
+}
+```
+
+JavaScript / TypeScript config files use a default export. `defineConfig` is optional but gives you type checking and editor autocomplete:
+
+```ts [oxfmt.config.ts]
+import { defineConfig } from "oxfmt";
+
+export default defineConfig({
+  printWidth: 80,
+});
+```
+
+## Configuration file format
+
+A configuration file is a JSON object. The most common top-level fields are:
+
+* `printWidth`: Line width limit (default: 100)
+* `tabWidth`: Spaces per indentation level (default: 2)
+* `useTabs`: Use tabs instead of spaces (default: false)
+* `semi`: Add semicolons (default: true)
+* `singleQuote`: Use single quotes (default: false)
+* `trailingComma`: Trailing commas in multi-line structures (default: "all")
+* `ignorePatterns`: Glob patterns to exclude from formatting
+* `sortImports`: Configure import sorting (disabled by default)
+* `sortTailwindcss`: Configure Tailwind class sorting (disabled by default)
+* `sortPackageJson`: Configure package.json sorting (enabled by default)
+
+For a complete list of fields, see the [Config file reference](./config-file-reference).
+
+## JSON schema
+
+Add a `$schema` field for editor validation and autocomplete:
+
+```json [.oxfmtrc.json]
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json"
+}
+```
+
+## `.editorconfig`
+
+Oxfmt reads these `.editorconfig` properties:
+
+* `end_of_line` → `endOfLine`
+* `indent_style` → `useTabs`
+* `indent_size` → `tabWidth`
+* `max_line_length` → `printWidth`
+* `insert_final_newline` → `insertFinalNewline`
+
+Both root section and glob-based overrides are supported.
+
+```
+[*]
+indent_size = 4
+
+[*.{js,ts}]
+indent_size = 2
+```
+
+Oxfmt uses only the nearest `.editorconfig` from the current directory:
+
+* `root = true` is not respected
+* Nested `.editorconfig` files are not merged
+
+## Overrides
+
+Use the `overrides` field to apply different formatting options to specific files:
+
+::: code-group
+
+```json [.oxfmtrc.json]
+{
+  "printWidth": 100,
+  "overrides": [
+    {
+      "files": ["*.test.js", "*.spec.ts"],
+      "options": {
+        "printWidth": 120
+      }
+    },
+    {
+      "files": ["*.md", "*.html"],
+      "excludeFiles": ["*.min.js"],
+      "options": {
+        "tabWidth": 4
+      }
+    }
+  ]
+}
+```
+
+```ts [oxfmt.config.ts]
+import { defineConfig } from "oxfmt";
+
+export default defineConfig({
+  printWidth: 100,
+  overrides: [
+    {
+      files: ["*.test.js", "*.spec.ts"],
+      options: {
+        printWidth: 120,
+      },
+    },
+    {
+      files: ["*.md", "*.html"],
+      excludeFiles: ["*.min.js"],
+      options: {
+        tabWidth: 4,
+      },
+    },
+  ],
+});
+```
+
+:::
+
+Each override entry has:
+
+* `files` (required): Glob patterns to match files
+* `excludeFiles` (optional): Glob patterns to exclude from this override
+* `options`: Formatting options to apply
+
+Glob patterns are resolved relative to the directory containing the Oxfmt config file.
+
+## Precedence
+
+Options are applied in order (lowest to highest priority):
+
+1. Defaults
+2. Config file root options
+3. Config file `overrides` options
+4. fallback to options supported by `.editorconfig` for unset fields
+
+## Oxfmt-specific options
+
+### `insertFinalNewline`
+
+Controls whether a final newline is added to formatted files. Defaults to `true`.
+
+This is a [frequently requested Prettier feature](https://github.com/prettier/prettier/issues/6360), as some environments (e.g., Salesforce) strip trailing newlines.
+
+### `printWidth`
+
+Oxfmt defaults to `printWidth: 100` (Prettier uses 80). Reasons:
+
+* TypeScript code is longer due to type annotations
+* Import statements often have many specifiers
+* Modern screens are wider
+* Fewer line breaks mean fewer LLM tokens
+
+To match Prettier's default:
+
+::: code-group
+
+```json [.oxfmtrc.json]
+{
+  "printWidth": 80
+}
+```
+
+```ts [oxfmt.config.ts]
+import { defineConfig } from "oxfmt";
+
+export default defineConfig({
+  printWidth: 80,
+});
+```
+
+:::
+
+## Next steps
+
+* [Ignore files](./ignore-files): Ignore files and patterns, `.gitignore` and `.prettierignore` workflows.
+* [Inline ignore comments](./ignore-comments): Inline suppressions for specific code.
+* [Config file reference](./config-file-reference): Full schema and field documentation.
+* [CLI reference](./cli): Complete list of flags.
 
 ---
 
@@ -2348,240 +2583,7 @@ export default defineConfig({
 ---
 
 ---
-url: /docs/guide/usage/formatter/config.md
-description: Configure Oxfmt using a .oxfmtrc.json file.
----
-
-# Configuration
-
-Oxfmt works out of the box, but most teams commit a configuration file to keep formatting consistent across local runs, editors, and CI.
-
-This page focuses on project configuration: formatting options, ignore patterns, and experimental features.
-
-## Create a config file
-
-To generate a starter config in the current directory:
-
-```sh
-oxfmt --init
-```
-
-Oxfmt automatically looks for the following files starting from the directory of the file being formatted and walking up the tree:
-
-* `.oxfmtrc.json`
-* `.oxfmtrc.jsonc`
-* `oxfmt.config.ts`
-
-The nearest config file to each formatted file wins. This means you can place different config files at different levels of your project tree.
-For example, a root config for the whole repo and a more specific one inside a subdirectory:
-
-```
-my-repo/
-├── oxfmt.config.ts         # default for the whole repo
-├── src/
-│   └── app.ts              # uses root config
-└── packages/
-    └── fancy-app/
-        ├── .oxfmtrc.json   # overrides for this package
-        └── index.ts        # uses packages/fancy-app/.oxfmtrc.json
-```
-
-If you don't need nested config, pass `--disable-nested-config` to only look upward from the current working directory. This is faster because Oxfmt can resolve the config once instead of per file.
-
-You can also pass a config explicitly with `-c`, which also disables nested config lookup. This accepts any supported format (`.json`, `.jsonc`, `.ts`, `.mts`, `.cts`, `.js`, `.mjs`, `.cjs`):
-
-```sh
-oxfmt -c path/to/yourconfig.json
-```
-
-A minimal JSON configuration looks like this:
-
-```json [.oxfmtrc.json]
-{
-  "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "printWidth": 80
-}
-```
-
-JavaScript / TypeScript config files use a default export. `defineConfig` is optional but gives you type checking and editor autocomplete:
-
-```ts [oxfmt.config.ts]
-import { defineConfig } from "oxfmt";
-
-export default defineConfig({
-  printWidth: 80,
-});
-```
-
-## Configuration file format
-
-A configuration file is a JSON object. The most common top-level fields are:
-
-* `printWidth`: Line width limit (default: 100)
-* `tabWidth`: Spaces per indentation level (default: 2)
-* `useTabs`: Use tabs instead of spaces (default: false)
-* `semi`: Add semicolons (default: true)
-* `singleQuote`: Use single quotes (default: false)
-* `trailingComma`: Trailing commas in multi-line structures (default: "all")
-* `ignorePatterns`: Glob patterns to exclude from formatting
-* `sortImports`: Configure import sorting (disabled by default)
-* `sortTailwindcss`: Configure Tailwind class sorting (disabled by default)
-* `sortPackageJson`: Configure package.json sorting (enabled by default)
-
-For a complete list of fields, see the [Config file reference](./config-file-reference).
-
-## JSON schema
-
-Add a `$schema` field for editor validation and autocomplete:
-
-```json [.oxfmtrc.json]
-{
-  "$schema": "./node_modules/oxfmt/configuration_schema.json"
-}
-```
-
-## `.editorconfig`
-
-Oxfmt reads these `.editorconfig` properties:
-
-* `end_of_line` → `endOfLine`
-* `indent_style` → `useTabs`
-* `indent_size` → `tabWidth`
-* `max_line_length` → `printWidth`
-* `insert_final_newline` → `insertFinalNewline`
-
-Both root section and glob-based overrides are supported.
-
-```
-[*]
-indent_size = 4
-
-[*.{js,ts}]
-indent_size = 2
-```
-
-Oxfmt uses only the nearest `.editorconfig` from the current directory:
-
-* `root = true` is not respected
-* Nested `.editorconfig` files are not merged
-
-## Overrides
-
-Use the `overrides` field to apply different formatting options to specific files:
-
-::: code-group
-
-```json [.oxfmtrc.json]
-{
-  "printWidth": 100,
-  "overrides": [
-    {
-      "files": ["*.test.js", "*.spec.ts"],
-      "options": {
-        "printWidth": 120
-      }
-    },
-    {
-      "files": ["*.md", "*.html"],
-      "excludeFiles": ["*.min.js"],
-      "options": {
-        "tabWidth": 4
-      }
-    }
-  ]
-}
-```
-
-```ts [oxfmt.config.ts]
-import { defineConfig } from "oxfmt";
-
-export default defineConfig({
-  printWidth: 100,
-  overrides: [
-    {
-      files: ["*.test.js", "*.spec.ts"],
-      options: {
-        printWidth: 120,
-      },
-    },
-    {
-      files: ["*.md", "*.html"],
-      excludeFiles: ["*.min.js"],
-      options: {
-        tabWidth: 4,
-      },
-    },
-  ],
-});
-```
-
-:::
-
-Each override entry has:
-
-* `files` (required): Glob patterns to match files
-* `excludeFiles` (optional): Glob patterns to exclude from this override
-* `options`: Formatting options to apply
-
-Glob patterns are resolved relative to the directory containing the Oxfmt config file.
-
-## Precedence
-
-Options are applied in order (lowest to highest priority):
-
-1. Defaults
-2. Config file root options
-3. Config file `overrides` options
-4. fallback to options supported by `.editorconfig` for unset fields
-
-## Oxfmt-specific options
-
-### `insertFinalNewline`
-
-Controls whether a final newline is added to formatted files. Defaults to `true`.
-
-This is a [frequently requested Prettier feature](https://github.com/prettier/prettier/issues/6360), as some environments (e.g., Salesforce) strip trailing newlines.
-
-### `printWidth`
-
-Oxfmt defaults to `printWidth: 100` (Prettier uses 80). Reasons:
-
-* TypeScript code is longer due to type annotations
-* Import statements often have many specifiers
-* Modern screens are wider
-* Fewer line breaks mean fewer LLM tokens
-
-To match Prettier's default:
-
-::: code-group
-
-```json [.oxfmtrc.json]
-{
-  "printWidth": 80
-}
-```
-
-```ts [oxfmt.config.ts]
-import { defineConfig } from "oxfmt";
-
-export default defineConfig({
-  printWidth: 80,
-});
-```
-
-:::
-
-## Next steps
-
-* [Ignore files](./ignore-files): Ignore files and patterns, `.gitignore` and `.prettierignore` workflows.
-* [Inline ignore comments](./ignore-comments): Inline suppressions for specific code.
-* [Config file reference](./config-file-reference): Full schema and field documentation.
-* [CLI reference](./cli): Complete list of flags.
-
----
-
----
-url: /docs/guide/usage/formatter/generated-config.md
+url: /docs/guide/usage/formatter/config-file-reference.md
 ---
 
 # Configuration options for the Oxfmt.
@@ -3817,7 +3819,7 @@ Whether or not to indent the code inside `<script>` and `<style>` tags in Vue fi
 ---
 
 ---
-url: /docs/guide/usage/formatter/config-file-reference.md
+url: /docs/guide/usage/formatter/generated-config.md
 ---
 
 # Configuration options for the Oxfmt.
@@ -23725,6 +23727,51 @@ This rule was added in v0.11.1.
 ---
 
 ---
+url: /docs/guide/usage/formatter/ignore-comments.md
+---
+# Inline ignore comments
+
+For JS/TS files, use `oxfmt-ignore` to skip formatting the next statement:
+
+```js
+// oxfmt-ignore
+const a    = 42;
+
+/* oxfmt-ignore */
+const x = () => { return 2; };
+
+<>
+  {/* oxfmt-ignore */}
+  <span   ugly   format=""   />
+</>;
+```
+
+For JS-in-Vue, use `oxfmt-ignore` inside the `<script>` tag:
+
+```vue
+<script>
+// oxfmt-ignore
+const a    = 42;
+</script>
+```
+
+Trailing ignore comments are also supported:
+
+```js
+const a    = 42; // oxfmt-ignore
+```
+
+For other files and non-JS parts of Vue files (e.g., `<template>`, `<style>`), use `prettier-ignore` comment. See also Prettier's [ignore documentation](https://prettier.io/docs/ignore#html).
+
+Currently, TOML files do not support ignore comments.
+
+## Prettier compatibility
+
+* `prettier-ignore` comment is also supported
+
+---
+
+---
 url: /docs/guide/usage/linter/ignore-comments.md
 description: Disable specific rules inline using Oxlint ignore comments
 ---
@@ -23835,51 +23882,6 @@ export default defineConfig({
 ```
 
 :::
-
----
-
----
-url: /docs/guide/usage/formatter/ignore-comments.md
----
-# Inline ignore comments
-
-For JS/TS files, use `oxfmt-ignore` to skip formatting the next statement:
-
-```js
-// oxfmt-ignore
-const a    = 42;
-
-/* oxfmt-ignore */
-const x = () => { return 2; };
-
-<>
-  {/* oxfmt-ignore */}
-  <span   ugly   format=""   />
-</>;
-```
-
-For JS-in-Vue, use `oxfmt-ignore` inside the `<script>` tag:
-
-```vue
-<script>
-// oxfmt-ignore
-const a    = 42;
-</script>
-```
-
-Trailing ignore comments are also supported:
-
-```js
-const a    = 42; // oxfmt-ignore
-```
-
-For other files and non-JS parts of Vue files (e.g., `<template>`, `<style>`), use `prettier-ignore` comment. See also Prettier's [ignore documentation](https://prettier.io/docs/ignore#html).
-
-Currently, TOML files do not support ignore comments.
-
-## Prettier compatibility
-
-* `prettier-ignore` comment is also supported
 
 ---
 
@@ -36602,7 +36604,7 @@ description: >-
 ---
 
 ---
-url: /docs/guide/usage/linter/generated-config.md
+url: /docs/guide/usage/linter/config-file-reference.md
 ---
 
 # Oxlint Configuration File
@@ -37454,7 +37456,7 @@ to accommodate TypeScript type checking scenarios.
 ---
 
 ---
-url: /docs/guide/usage/linter/config-file-reference.md
+url: /docs/guide/usage/linter/generated-config.md
 ---
 
 # Oxlint Configuration File
@@ -38594,6 +38596,70 @@ The parser provides:
 ---
 
 ---
+url: /docs/guide/usage/parser.md
+---
+
+# Parser
+
+A high-performance JavaScript / TypeScript parser written in Rust, powering other tools in the Oxc project.
+
+## Features
+
+* 3x faster than swc parser ([benchmark][url-benchmark]).
+* Parses `.js(x)` and `.ts(x)`.
+* Passes all parser tests from Test262 and 99% from Babel and TypeScript.
+* Returns ESM information directly, no need for [`es-module-lexer`](https://npmx.dev/package/es-module-lexer).
+* [✅ works with checker.ts](https://x.com/robpalmer2/status/1805502964435505559)
+
+## Installation
+
+### Node.js
+
+* Use the node binding [oxc-parser][url-oxc-parser-npm].
+* Try on [stackblitz](https://stackblitz.com/edit/oxc-parser).
+
+### Rust
+
+Use the umbrella crate [oxc][url-oxc-crate] or the individual [oxc\_ast][url-oxc-ast-crate] and [oxc\_parser][url-oxc-parser-crate] crates.
+
+Rust usage example can be found [here](https://github.com/oxc-project/oxc/blob/main/crates/oxc_parser/examples/parser.rs).
+
+## Print
+
+After parsing and transforming, you can print code.
+
+Here's a direct example using [esrap](https://npmx.dev/package/esrap) *(`parse` in reverse!)*:
+
+```js
+import { print } from "esrap";
+import ts from "esrap/languages/ts";
+import { parseSync } from "oxc-parser";
+
+const { program } = parseSync("test.js", 'alert("hello oxc & esrap");');
+const { code } = print(program, ts());
+
+console.log(code); // alert("hello oxc & esrap");
+```
+
+:::info
+Today, comments are not printed. *It will be supported thanks to [oxc-parser #13285](https://github.com/oxc-project/oxc/pull/13285).*
+:::
+
+[url-swc]: https://swc.rs
+
+[url-benchmark]: https://github.com/oxc-project/bench-javascript-parser-written-in-rust
+
+[url-oxc-crate]: https://docs.rs/oxc
+
+[url-oxc-ast-crate]: https://docs.rs/oxc_ast
+
+[url-oxc-parser-crate]: https://docs.rs/oxc_parser
+
+[url-oxc-parser-npm]: https://npmx.dev/package/oxc-parser
+
+---
+
+---
 url: /docs/learn/parser_in_rust/parser.md
 ---
 
@@ -39000,70 +39066,6 @@ function isParenthesizedArrowFunctionExpression(): Tristate {
 ```
 
 In summary, the TypeScript parser uses a combination of lookahead (fast path) and backtracking to parse arrow functions.
-
----
-
----
-url: /docs/guide/usage/parser.md
----
-
-# Parser
-
-A high-performance JavaScript / TypeScript parser written in Rust, powering other tools in the Oxc project.
-
-## Features
-
-* 3x faster than swc parser ([benchmark][url-benchmark]).
-* Parses `.js(x)` and `.ts(x)`.
-* Passes all parser tests from Test262 and 99% from Babel and TypeScript.
-* Returns ESM information directly, no need for [`es-module-lexer`](https://npmx.dev/package/es-module-lexer).
-* [✅ works with checker.ts](https://x.com/robpalmer2/status/1805502964435505559)
-
-## Installation
-
-### Node.js
-
-* Use the node binding [oxc-parser][url-oxc-parser-npm].
-* Try on [stackblitz](https://stackblitz.com/edit/oxc-parser).
-
-### Rust
-
-Use the umbrella crate [oxc][url-oxc-crate] or the individual [oxc\_ast][url-oxc-ast-crate] and [oxc\_parser][url-oxc-parser-crate] crates.
-
-Rust usage example can be found [here](https://github.com/oxc-project/oxc/blob/main/crates/oxc_parser/examples/parser.rs).
-
-## Print
-
-After parsing and transforming, you can print code.
-
-Here's a direct example using [esrap](https://npmx.dev/package/esrap) *(`parse` in reverse!)*:
-
-```js
-import { print } from "esrap";
-import ts from "esrap/languages/ts";
-import { parseSync } from "oxc-parser";
-
-const { program } = parseSync("test.js", 'alert("hello oxc & esrap");');
-const { code } = print(program, ts());
-
-console.log(code); // alert("hello oxc & esrap");
-```
-
-:::info
-Today, comments are not printed. *It will be supported thanks to [oxc-parser #13285](https://github.com/oxc-project/oxc/pull/13285).*
-:::
-
-[url-swc]: https://swc.rs
-
-[url-benchmark]: https://github.com/oxc-project/bench-javascript-parser-written-in-rust
-
-[url-oxc-crate]: https://docs.rs/oxc
-
-[url-oxc-ast-crate]: https://docs.rs/oxc_ast
-
-[url-oxc-parser-crate]: https://docs.rs/oxc_parser
-
-[url-oxc-parser-npm]: https://npmx.dev/package/oxc-parser
 
 ---
 
@@ -41103,6 +41105,179 @@ This rule was added in v0.7.1.
 ---
 
 ---
+url: /docs/guide/usage/formatter/quickstart.md
+description: Install Oxfmt and learn the common workflows.
+---
+
+# Quickstart
+
+Recommended setup and common workflows.
+
+## Install
+
+Install `oxfmt` as a dev dependency:
+
+::: code-group
+
+```sh [npm]
+$ npm add -D oxfmt
+```
+
+```sh [pnpm]
+$ pnpm add -D oxfmt
+```
+
+```sh [yarn]
+$ yarn add -D oxfmt
+```
+
+```sh [bun]
+$ bun add -D oxfmt
+```
+
+:::
+
+Add scripts to `package.json`:
+
+```json [package.json]
+{
+  "scripts": {
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check"
+  }
+}
+```
+
+Format files:
+
+::: code-group
+
+```sh [npm]
+npm run fmt
+```
+
+```sh [pnpm]
+pnpm run fmt
+```
+
+```sh [yarn]
+yarn run fmt
+```
+
+```sh [bun]
+bun run fmt
+```
+
+:::
+
+Check formatting without writing files:
+
+::: code-group
+
+```sh [npm]
+npm run fmt:check
+```
+
+```sh [pnpm]
+pnpm run fmt:check
+```
+
+```sh [yarn]
+yarn run fmt:check
+```
+
+```sh [bun]
+bun run fmt:check
+```
+
+:::
+
+## Usage
+
+```sh
+oxfmt [OPTIONS] [PATH]...
+```
+
+Running `oxfmt` without arguments formats the current directory (equivalent to `prettier --write .`).
+
+CLI options like `--no-semi` are not supported. Use the configuration file instead to ensure consistent settings across CLI and editor integrations.
+
+To use glob patterns in positional paths, be sure to quote them. Otherwise, they may or may not be expanded depending on your environment.
+
+For the complete list of options, see the [CLI reference](/docs/guide/usage/formatter/cli.html).
+
+## Common workflows
+
+### Pre-commit with lint-staged
+
+```json [package.json]
+{
+  "lint-staged": {
+    "*": "oxfmt --no-error-on-unmatched-pattern"
+  }
+}
+```
+
+`--no-error-on-unmatched-pattern` prevents errors when no files match the pattern.
+
+### Create a config file
+
+Initialize `.oxfmtrc.json` with defaults:
+
+```sh
+oxfmt --init
+```
+
+### Migrate from Prettier
+
+```sh
+oxfmt --migrate prettier
+```
+
+See [migrate from prettier](./migrate-from-prettier) for details.
+
+### List files that differ
+
+```sh
+oxfmt --list-different
+```
+
+This is useful for configuring [files to ignore](./ignore-files).
+
+### Piping file contents
+
+```sh
+echo 'const   x   =   1' | oxfmt --stdin-filepath test.ts
+```
+
+Prints `const x = 1;`
+
+### Node.js API
+
+```ts
+import { format, type FormatOptions } from "oxfmt";
+
+const input = `let a=42;`;
+const options: FormatOptions = {
+  semi: false,
+};
+
+const { code } = await format("a.js", input, options);
+console.log(code); // "let a = 42"
+```
+
+## Next steps
+
+* [Change configuration](./config)
+* [Setup editors](./editors)
+* [Setup CI](./ci)
+* Learn advanced features: [sorting](./sorting), [embedded formatting](./embedded-formatting)
+* [Compatibility matrix](/compatibility)
+* Check [CLI reference](./cli)
+
+---
+
+---
 url: /docs/guide/usage/linter/quickstart.md
 description: Install Oxlint and learn the common workflows.
 ---
@@ -41365,179 +41540,6 @@ The full list is in the [Rules reference](/docs/guide/usage/linter/rules).
 * Migrate: [From ESLint](/docs/guide/usage/linter/migrate-from-eslint)&#x20;
 * [Compatibility matrix](/compatibility)
 * [CLI reference](/docs/guide/usage/linter/cli)
-
----
-
----
-url: /docs/guide/usage/formatter/quickstart.md
-description: Install Oxfmt and learn the common workflows.
----
-
-# Quickstart
-
-Recommended setup and common workflows.
-
-## Install
-
-Install `oxfmt` as a dev dependency:
-
-::: code-group
-
-```sh [npm]
-$ npm add -D oxfmt
-```
-
-```sh [pnpm]
-$ pnpm add -D oxfmt
-```
-
-```sh [yarn]
-$ yarn add -D oxfmt
-```
-
-```sh [bun]
-$ bun add -D oxfmt
-```
-
-:::
-
-Add scripts to `package.json`:
-
-```json [package.json]
-{
-  "scripts": {
-    "fmt": "oxfmt",
-    "fmt:check": "oxfmt --check"
-  }
-}
-```
-
-Format files:
-
-::: code-group
-
-```sh [npm]
-npm run fmt
-```
-
-```sh [pnpm]
-pnpm run fmt
-```
-
-```sh [yarn]
-yarn run fmt
-```
-
-```sh [bun]
-bun run fmt
-```
-
-:::
-
-Check formatting without writing files:
-
-::: code-group
-
-```sh [npm]
-npm run fmt:check
-```
-
-```sh [pnpm]
-pnpm run fmt:check
-```
-
-```sh [yarn]
-yarn run fmt:check
-```
-
-```sh [bun]
-bun run fmt:check
-```
-
-:::
-
-## Usage
-
-```sh
-oxfmt [OPTIONS] [PATH]...
-```
-
-Running `oxfmt` without arguments formats the current directory (equivalent to `prettier --write .`).
-
-CLI options like `--no-semi` are not supported. Use the configuration file instead to ensure consistent settings across CLI and editor integrations.
-
-To use glob patterns in positional paths, be sure to quote them. Otherwise, they may or may not be expanded depending on your environment.
-
-For the complete list of options, see the [CLI reference](/docs/guide/usage/formatter/cli.html).
-
-## Common workflows
-
-### Pre-commit with lint-staged
-
-```json [package.json]
-{
-  "lint-staged": {
-    "*": "oxfmt --no-error-on-unmatched-pattern"
-  }
-}
-```
-
-`--no-error-on-unmatched-pattern` prevents errors when no files match the pattern.
-
-### Create a config file
-
-Initialize `.oxfmtrc.json` with defaults:
-
-```sh
-oxfmt --init
-```
-
-### Migrate from Prettier
-
-```sh
-oxfmt --migrate prettier
-```
-
-See [migrate from prettier](./migrate-from-prettier) for details.
-
-### List files that differ
-
-```sh
-oxfmt --list-different
-```
-
-This is useful for configuring [files to ignore](./ignore-files).
-
-### Piping file contents
-
-```sh
-echo 'const   x   =   1' | oxfmt --stdin-filepath test.ts
-```
-
-Prints `const x = 1;`
-
-### Node.js API
-
-```ts
-import { format, type FormatOptions } from "oxfmt";
-
-const input = `let a=42;`;
-const options: FormatOptions = {
-  semi: false,
-};
-
-const { code } = await format("a.js", input, options);
-console.log(code); // "let a = 42"
-```
-
-## Next steps
-
-* [Change configuration](./config)
-* [Setup editors](./editors)
-* [Setup CI](./ci)
-* Learn advanced features: [sorting](./sorting), [embedded formatting](./embedded-formatting)
-* [Compatibility matrix](/compatibility)
-* Check [CLI reference](./cli)
 
 ---
 
@@ -46532,158 +46534,6 @@ A Vite plugin is supported via a [third-party package](https://npmx.dev/package/
 ---
 
 ---
-url: /docs/guide/usage/linter/editors.md
-description: 'Configure Oxlint in VS Code, Zed, JetBrains, and other editors.'
----
-
-# Setup editors
-
-Editor extensions use `oxlint --lsp` from your project, so `oxlint` must be installed locally.
-
-See [Quickstart](./quickstart) to install Oxlint.
-
-## Supported editors
-
-* [VS Code](#vs-code) (and Cursor, etc.)
-* [Zed](#zed)
-* [JetBrains](#jetbrains)
-* [Neovim](#neovim)
-* [Other editors](#other-editors)
-
-## VS Code
-
-### Install
-
-Download the official Oxc VS Code extension from:
-
-* [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=oxc.oxc-vscode)
-* [Open VSX Registry](https://open-vsx.org/extension/oxc/oxc-vscode)
-
-**The extension is compatible with other VS Code-based editors**, including Cursor.
-
-### Team setup
-
-1. Recommend the extension for contributors:
-
-`.vscode/extensions.json`:
-
-```json [.vscode/extensions.json]
-{
-  "recommendations": ["oxc.oxc-vscode"]
-}
-```
-
-2. Enable fix-on-save in `.vscode/settings.json`:
-
-```json [.vscode/settings.json]
-{
-  "editor.codeActionsOnSave": {
-    "source.fixAll.oxc": "always"
-  }
-}
-```
-
-3. Enable type-aware linting (optional):
-
-To enable it for the whole project, set it in the root Oxlint config:
-
-::: code-group
-
-```json [.oxlintrc.json]
-{
-  "options": {
-    "typeAware": true
-  }
-}
-```
-
-```ts [oxlint.config.ts]
-import { defineConfig } from "oxlint";
-
-export default defineConfig({
-  options: {
-    typeAware: true,
-  },
-});
-```
-
-:::
-
-Or set it in `.vscode/settings.json`:
-
-```json [.vscode/settings.json]
-{
-  "oxc.typeAware": true
-}
-```
-
-When `oxc.typeAware` is unset, the editor uses the root config's `options.typeAware` value. When set explicitly, it overrides the config value.
-
-You also need to ensure `oxlint-tsgolint` is installed in your project. See [the type-aware linting docs](/docs/guide/usage/linter/type-aware) for more details.
-
-### Reference
-
-* [oxc-project/oxc-vscode](https://github.com/oxc-project/oxc-vscode)
-
-## Zed
-
-### Install
-
-* [Oxc Zed Extension](https://zed.dev/extensions/oxc)
-
-### Reference
-
-* [oxc-project/oxc-zed](https://github.com/oxc-project/oxc-zed)
-
-## JetBrains
-
-IntelliJ IDEA and WebStorm.
-
-### Install
-
-* [Oxc in JetBrains Marketplace](https://plugins.jetbrains.com/plugin/27061-oxc)
-
-### Reference
-
-* [oxc-project/oxc-intellij-plugin](https://github.com/oxc-project/oxc-intellij-plugin)
-
-## Neovim
-
-### nvim-lspconfig
-
-```sh
-npm i -g oxlint
-```
-
-```lua
-vim.lsp.enable('oxlint')
-```
-
-* [nvim-lspconfig: oxlint](https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md#oxlint)
-
-### coc.nvim
-
-```vim
-:CocInstall coc-oxc
-```
-
-* [oxc-project/coc-oxc](https://github.com/oxc-project/coc-oxc)
-
-## Other editors
-
-For editors with LSP support (Emacs, Helix, Sublime), configure:
-
-```bash
-oxlint --lsp
-```
-
-## Reference
-
-* [oxc\_language\_server](https://github.com/oxc-project/oxc/tree/main/crates/oxc_language_server)
-
----
-
----
 url: /docs/guide/usage/formatter/editors.md
 description: 'Configure Oxfmt in VS Code, Zed, JetBrains, and other editors.'
 ---
@@ -46827,6 +46677,158 @@ Or, for editors without LSP support:
 
 ```sh
 cat foo/bar.js | oxfmt --stdin-filepath dummy.js --config ./path/to/config.json
+```
+
+## Reference
+
+* [oxc\_language\_server](https://github.com/oxc-project/oxc/tree/main/crates/oxc_language_server)
+
+---
+
+---
+url: /docs/guide/usage/linter/editors.md
+description: 'Configure Oxlint in VS Code, Zed, JetBrains, and other editors.'
+---
+
+# Setup editors
+
+Editor extensions use `oxlint --lsp` from your project, so `oxlint` must be installed locally.
+
+See [Quickstart](./quickstart) to install Oxlint.
+
+## Supported editors
+
+* [VS Code](#vs-code) (and Cursor, etc.)
+* [Zed](#zed)
+* [JetBrains](#jetbrains)
+* [Neovim](#neovim)
+* [Other editors](#other-editors)
+
+## VS Code
+
+### Install
+
+Download the official Oxc VS Code extension from:
+
+* [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=oxc.oxc-vscode)
+* [Open VSX Registry](https://open-vsx.org/extension/oxc/oxc-vscode)
+
+**The extension is compatible with other VS Code-based editors**, including Cursor.
+
+### Team setup
+
+1. Recommend the extension for contributors:
+
+`.vscode/extensions.json`:
+
+```json [.vscode/extensions.json]
+{
+  "recommendations": ["oxc.oxc-vscode"]
+}
+```
+
+2. Enable fix-on-save in `.vscode/settings.json`:
+
+```json [.vscode/settings.json]
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.oxc": "always"
+  }
+}
+```
+
+3. Enable type-aware linting (optional):
+
+To enable it for the whole project, set it in the root Oxlint config:
+
+::: code-group
+
+```json [.oxlintrc.json]
+{
+  "options": {
+    "typeAware": true
+  }
+}
+```
+
+```ts [oxlint.config.ts]
+import { defineConfig } from "oxlint";
+
+export default defineConfig({
+  options: {
+    typeAware: true,
+  },
+});
+```
+
+:::
+
+Or set it in `.vscode/settings.json`:
+
+```json [.vscode/settings.json]
+{
+  "oxc.typeAware": true
+}
+```
+
+When `oxc.typeAware` is unset, the editor uses the root config's `options.typeAware` value. When set explicitly, it overrides the config value.
+
+You also need to ensure `oxlint-tsgolint` is installed in your project. See [the type-aware linting docs](/docs/guide/usage/linter/type-aware) for more details.
+
+### Reference
+
+* [oxc-project/oxc-vscode](https://github.com/oxc-project/oxc-vscode)
+
+## Zed
+
+### Install
+
+* [Oxc Zed Extension](https://zed.dev/extensions/oxc)
+
+### Reference
+
+* [oxc-project/oxc-zed](https://github.com/oxc-project/oxc-zed)
+
+## JetBrains
+
+IntelliJ IDEA and WebStorm.
+
+### Install
+
+* [Oxc in JetBrains Marketplace](https://plugins.jetbrains.com/plugin/27061-oxc)
+
+### Reference
+
+* [oxc-project/oxc-intellij-plugin](https://github.com/oxc-project/oxc-intellij-plugin)
+
+## Neovim
+
+### nvim-lspconfig
+
+```sh
+npm i -g oxlint
+```
+
+```lua
+vim.lsp.enable('oxlint')
+```
+
+* [nvim-lspconfig: oxlint](https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md#oxlint)
+
+### coc.nvim
+
+```vim
+:CocInstall coc-oxc
+```
+
+* [oxc-project/coc-oxc](https://github.com/oxc-project/coc-oxc)
+
+## Other editors
+
+For editors with LSP support (Emacs, Helix, Sublime), configure:
+
+```bash
+oxlint --lsp
 ```
 
 ## Reference
@@ -63961,6 +63963,69 @@ For what Oxfmt does support across frameworks and file types, see the [compatibi
 ---
 
 ---
+url: /docs/guide/usage/formatter/generated-cli.md
+---
+
+## Usage
+
+**`oxfmt`** \[**`-c`**=*`PATH`*] \[*`PATH`*]...
+
+## Mode Options:
+
+* **`    --init`** —
+  Initialize `.oxfmtrc.json` with default values
+* **`    --migrate`**=*`SOURCE`* —
+  Migrate configuration to `.oxfmtrc.json` from specified source Available sources: prettier, biome
+* **`    --lsp`** —
+  Start language server protocol (LSP) server
+* **`    --stdin-filepath`**=*`PATH`* —
+  Specify the file name to use to infer which parser to use
+
+## Output Options:
+
+* **`    --write`** —
+  Format and write files in place (default)
+* **`    --check`** —
+  Check if files are formatted, also show statistics
+* **`    --list-different`** —
+  List files that would be changed
+
+## Config Options
+
+* **`-c`**, **`--config`**=*`PATH`* —
+  Path to the configuration file (.json, .jsonc, .ts, .mts, .cts, .js, .mjs, .cjs)
+* **`    --disable-nested-config`** —
+  Do not search for configuration files in subdirectories
+
+## Ignore Options
+
+* **`    --ignore-path`**=*`PATH`* —
+  Path to ignore file(s). Can be specified multiple times. If not specified, .gitignore and .prettierignore in the current directory are used.
+* **`    --with-node-modules`** —
+  Format code in node\_modules directory (skipped by default)
+
+## Runtime Options
+
+* **`    --no-error-on-unmatched-pattern`** —
+  Do not exit with error when pattern is unmatched
+* **`    --threads`**=*`INT`* —
+  Number of threads to use. Set to 1 for using only 1 CPU core.
+
+## Available positional items:
+
+* *`PATH`* —
+  Single file, path or list of paths. Glob patterns are also supported. (Be sure to quote them, otherwise your shell may expand them before passing.) Exclude patterns with `!` prefix like `'!**/fixtures/*.js'` are also supported. If not provided, current working directory is used.
+
+## Available options:
+
+* **`-h`**, **`--help`** —
+  Prints help information
+* **`-V`**, **`--version`** —
+  Prints version information
+
+---
+
+---
 url: /docs/guide/usage/linter/generated-cli.md
 ---
 
@@ -64115,69 +64180,6 @@ Arguments:
   Enable rules that require type information
 * **`    --type-check`** —
   Enable experimental type checking (includes TypeScript compiler diagnostics)
-* **`-h`**, **`--help`** —
-  Prints help information
-* **`-V`**, **`--version`** —
-  Prints version information
-
----
-
----
-url: /docs/guide/usage/formatter/generated-cli.md
----
-
-## Usage
-
-**`oxfmt`** \[**`-c`**=*`PATH`*] \[*`PATH`*]...
-
-## Mode Options:
-
-* **`    --init`** —
-  Initialize `.oxfmtrc.json` with default values
-* **`    --migrate`**=*`SOURCE`* —
-  Migrate configuration to `.oxfmtrc.json` from specified source Available sources: prettier, biome
-* **`    --lsp`** —
-  Start language server protocol (LSP) server
-* **`    --stdin-filepath`**=*`PATH`* —
-  Specify the file name to use to infer which parser to use
-
-## Output Options:
-
-* **`    --write`** —
-  Format and write files in place (default)
-* **`    --check`** —
-  Check if files are formatted, also show statistics
-* **`    --list-different`** —
-  List files that would be changed
-
-## Config Options
-
-* **`-c`**, **`--config`**=*`PATH`* —
-  Path to the configuration file (.json, .jsonc, .ts, .mts, .cts, .js, .mjs, .cjs)
-* **`    --disable-nested-config`** —
-  Do not search for configuration files in subdirectories
-
-## Ignore Options
-
-* **`    --ignore-path`**=*`PATH`* —
-  Path to ignore file(s). Can be specified multiple times. If not specified, .gitignore and .prettierignore in the current directory are used.
-* **`    --with-node-modules`** —
-  Format code in node\_modules directory (skipped by default)
-
-## Runtime Options
-
-* **`    --no-error-on-unmatched-pattern`** —
-  Do not exit with error when pattern is unmatched
-* **`    --threads`**=*`INT`* —
-  Number of threads to use. Set to 1 for using only 1 CPU core.
-
-## Available positional items:
-
-* *`PATH`* —
-  Single file, path or list of paths. Glob patterns are also supported. (Be sure to quote them, otherwise your shell may expand them before passing.) Exclude patterns with `!` prefix like `'!**/fixtures/*.js'` are also supported. If not provided, current working directory is used.
-
-## Available options:
-
 * **`-h`**, **`--help`** —
   Prints help information
 * **`-V`**, **`--version`** —
