@@ -1,0 +1,41 @@
+---
+url: /docs/guide/usage/linter/rules/vitest/prefer-called-with.md
+---
+
+### What it does
+
+Suggest using `toBeCalledWith()` or `toHaveBeenCalledWith()`
+
+### Why is this bad?
+
+When testing function calls, it's often more valuable to assert both
+that a function was called AND what arguments it was called with.
+Using `toBeCalled()` or `toHaveBeenCalled()` only verifies the function
+was invoked, but doesn't validate the arguments, potentially missing
+bugs where functions are called with incorrect parameters.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+expect(someFunction).toBeCalled();
+expect(someFunction).toHaveBeenCalled();
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+expect(noArgsFunction).toBeCalledWith();
+expect(roughArgsFunction).toBeCalledWith(expect.anything(), expect.any(Date));
+expect(anyArgsFunction).toBeCalledTimes(1);
+expect(uncalledFunction).not.toBeCalled();
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.2.5.
+
+## References

@@ -67,7 +67,12 @@ Example:
 
 ```json
 {
-  "no-empty-function": ["error", { "allow": ["constructors"] }]
+  "no-empty-function": [
+    "error",
+    {
+      "allow": ["constructors"]
+    }
+  ]
 }
 ```
 

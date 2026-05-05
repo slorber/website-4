@@ -1,0 +1,37 @@
+---
+url: /docs/guide/usage/linter/rules/vitest/prefer-to-have-length.md
+---
+
+### What it does
+
+In order to have a better failure message, `toHaveLength()` should be used upon
+asserting expectations on objects length property.
+
+### Why is this bad?
+
+This rule triggers a warning if `toBe()`, `toEqual()` or `toStrictEqual()` is
+used to assert objects length property.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+expect(files["length"]).toBe(1);
+expect(files["length"]).toBe(1);
+expect(files["length"])["not"].toBe(1);
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+expect(files).toHaveLength(1);
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.2.13.
+
+## References

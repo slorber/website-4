@@ -1,0 +1,1 @@
+import{p as e}from"./client.BKjK2yqD.js";var t=e;export{t};

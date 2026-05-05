@@ -4,47 +4,15 @@ url: /docs/guide/usage/linter/rules/vitest/consistent-test-it.md
 
 ### What it does
 
-Jest allows you to choose how you want to define your tests, using the `it` or
-the `test` keywords, with multiple permutations for each:
+Vitest allows you to choose how you want to define your tests, using the `it`
+or the `test` keywords, with multiple permutations for each:
 
-* **it:** `it`, `xit`, `fit`, `it.only`, `it.skip`.
-* **test:** `test`, `xtest`, `test.only`, `test.skip`.
+* **it:** `it`, `it.only`, `it.skip`, `it.concurrent`, `it.each`.
+* **test:** `test`, `test.only`, `test.skip`, `test.concurrent`, `test.each`.
 
 ### Why is this bad?
 
 It's a good practice to be consistent in your test suite, so that all tests are written in the same way.
-
-### Examples
-
-```javascript
-/* jest/consistent-test-it: ["error", {"fn": "test"}] */
-test("foo"); // valid
-test.only("foo"); // valid
-
-it("foo"); // invalid
-it.only("foo"); // invalid
-```
-
-```javascript
-/* jest/consistent-test-it: ["error", {"fn": "it"}] */
-it("foo"); // valid
-it.only("foo"); // valid
-test("foo"); // invalid
-test.only("foo"); // invalid
-```
-
-```javascript
-/* jest/consistent-test-it: ["error", {"fn": "it", "withinDescribe": "test"}] */
-it("foo"); // valid
-describe("foo", function () {
-  test("bar"); // valid
-});
-
-test("foo"); // invalid
-describe("foo", function () {
-  it("bar"); // invalid
-});
-```
 
 ## Configuration
 
@@ -58,6 +26,34 @@ default: `"test"`
 
 Decides whether to use `test` or `it`.
 
+Examples of **incorrect** code for `{ "fn": "test" }`:
+
+```javascript
+it("foo");
+it.only("foo");
+```
+
+Examples of **correct** code for `{ "fn": "test" }`:
+
+```javascript
+test("foo");
+test.only("foo");
+```
+
+Examples of **incorrect** code for `{ "fn": "it" }`:
+
+```javascript
+test("foo");
+test.only("foo");
+```
+
+Examples of **correct** code for `{ "fn": "it" }`:
+
+```javascript
+it("foo");
+it.only("foo");
+```
+
 ### withinDescribe
 
 type: `"it" | "test"`
@@ -66,6 +62,22 @@ default: `"it"`
 
 Decides whether to use `test` or `it` within a `describe` scope.
 If only `fn` is provided, this will default to the value of `fn`.
+
+Examples of **incorrect** code for `{ "withinDescribe": "test" }`:
+
+```javascript
+describe("foo", function () {
+  it("bar");
+});
+```
+
+Examples of **correct** code for `{ "withinDescribe": "test" }`:
+
+```javascript
+describe("foo", function () {
+  test("bar");
+});
+```
 
 ## How to use
 

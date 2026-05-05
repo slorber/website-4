@@ -1737,7 +1737,7 @@ Arguments:
 ## Output
 
 * **`-f`**, **`--format`**=*`ARG`* —
-  Use a specific output format. Possible values: `checkstyle`, `default`, `github`, `gitlab`, `json`, `junit`, `stylish`, `unix`
+  Use a specific output format. Possible values: `checkstyle`, `default`, `agent`, `github`, `gitlab`, `json`, `junit`, `sarif`, `stylish`, `unix`
 
 ## Miscellaneous
 
@@ -8638,6 +8638,122 @@ This rule was added in v0.15.11.
 ---
 
 ---
+url: /docs/guide/usage/linter/rules/eslint/logical-assignment-operators.md
+---
+
+### What it does
+
+This rule requires or disallows logical assignment operator shorthand.
+
+### Why is this bad?
+
+ES2021 introduces the assignment operator shorthand for the logical operators `||`, `&&` and `??`.
+Before, this was only allowed for mathematical operations such as `+` or `*` (see the rule `operator-assignment`).
+The shorthand can be used if the assignment target and the left expression of a logical expression are the same.
+For example `a = a || b` can be shortened to `a ||= b`.
+
+### Examples
+
+Examples of **incorrect** code for this rule with the default `always` option:
+
+```js
+a = a || b;
+a = a && b;
+a = a ?? b;
+a || (a = b);
+a && (a = b);
+a ?? (a = b);
+a = a || b || c;
+a = a && b && c;
+a = a ?? b ?? c;
+```
+
+Examples of **correct** code for this rule with the default `always` option:
+
+```js
+a = b;
+a += b;
+a ||= b;
+a = b || c;
+a || (b = c);
+if (a) a = b;
+a = a || b || c;
+```
+
+Examples of **incorrect** code for this rule with the `never` option:
+
+```js
+a ||= b;
+a &&= b;
+a ??= b;
+```
+
+Examples of **correct** code for this rule with the `never` option:
+
+```js
+a = a || b;
+a = a && b;
+a = a ?? b;
+```
+
+## Configuration
+
+### The 1st option
+
+type: `"always" | "never"`
+
+#### `"always"`
+
+This option checks for expressions that can be shortened using logical assignment operator.
+For example, `a = a || b` can be shortened to `a ||= b`.
+Expressions with associativity such as `a = a || b || c` are reported as being able to be shortened to `a ||= b || c` unless the evaluation order is explicitly defined using parentheses, such as `a = (a || b) || c`.
+
+#### `"never"`
+
+This option disallows logical assignment operator shorthand.
+For example, `a ||= b` should be written as `a = a || b`.
+
+### The 2nd option
+
+This option is an object with the following properties:
+
+#### enforceForIfStatements
+
+type: `boolean`
+
+default: `false`
+
+This option checks for additional patterns with if statements which could be expressed with the logical assignment operator.
+Only available if string option is set to `always`.
+
+Examples of **incorrect** code for this rule with the `["always", { enforceForIfStatements: true }]` option:
+
+```js
+if (a) a = b; // <=> a &&= b
+if (!a) a = b; // <=> a ||= b
+
+if (a == null) a = b; // <=> a ??= b
+if (a === null || a === undefined) a = b; // <=> a ??= b
+```
+
+Examples of **correct** code for this rule with the `["always", { enforceForIfStatements: true }]` option:
+
+```js
+if (a) b = c;
+if (a === 0) a = b;
+```
+
+## How to use
+
+## Version
+
+This rule was added in v1.63.0.
+
+## References
+
+---
+
+---
 url: /docs/guide/usage/linter/rules/eslint/max-classes-per-file.md
 ---
 
@@ -11547,7 +11663,12 @@ Example:
 
 ```json
 {
-  "no-empty-function": ["error", { "allow": ["constructors"] }]
+  "no-empty-function": [
+    "error",
+    {
+      "allow": ["constructors"]
+    }
+  ]
 }
 ```
 
@@ -12791,7 +12912,12 @@ Example configuration:
 
 ```json
 {
-  "no-inline-comments": ["error", { "ignorePattern": "webpackChunkName" }]
+  "no-inline-comments": [
+    "error",
+    {
+      "ignorePattern": "webpackChunkName"
+    }
+  ]
 }
 ```
 
@@ -15321,6 +15447,160 @@ import { isEmpty } from "utils/collection-utils";
 ## Version
 
 This rule was added in v0.15.0.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/eslint/no-restricted-properties.md
+---
+
+### What it does
+
+This rule allows you to disallow access to certain properties on certain objects.
+
+### Why is this bad?
+
+Certain properties on objects may be disallowed in a codebase. This is useful for
+deprecating an API or restricting usage of a module’s methods. For example, you may want
+to disallow using describe.only when using Mocha or telling people to use Object.assign
+instead of \_.extend.
+
+If you want to disallow APIs marked with `@deprecated`, consider using the type-aware
+`typescript/no-deprecated` rule instead.
+
+### Examples
+
+**With options:**
+
+```json
+"no-restricted-properties": ["error", {
+  "object": "JSON",
+  "property": "parse"
+}]
+```
+
+Examples of **incorrect** code for this rule:
+
+```js
+/* no-restricted-properties: ["error", { "object": "JSON", "property": "parse" }] */
+
+JSON.parse('{ "json": "here" }'); // 'JSON.parse' is restricted from being used.
+```
+
+Examples of **correct** code for this rule:
+
+```js
+/* no-restricted-properties: ["error", { "object": "JSON", "property": "parse" }] */
+
+JSON.stringify({ json: "here" });
+```
+
+**With options:**
+
+```json
+"no-restricted-properties": ["error", {
+  "property": "extend",
+  "allowObjects": ["safeUtils"]
+}]
+```
+
+Examples of **incorrect** code for this rule:
+
+```js
+/* no-restricted-properties: ["error", { "property": "extend", "allowObjects": ["safeUtils"] }] */
+
+unsafeUtils.extend(value); // 'extend' is restricted from being used. Property 'extend' is only allowed on these objects: safeUtils.
+```
+
+Examples of **correct** code for this rule:
+
+```js
+/* no-restricted-properties: ["error", { "property": "extend", "allowObjects": ["safeUtils"] }] */
+
+safeUtils.extend(value);
+```
+
+**With options:**
+
+```json
+"no-restricted-properties": ["error", {
+  "object": "legacyApi",
+  "allowProperties": ["stableMethod"]
+}]
+```
+
+Examples of **incorrect** code for this rule:
+
+```js
+/* no-restricted-properties: ["error", { "object": "legacyApi", "allowProperties": ["stableMethod"] }] */
+
+legacyApi.unstableMethod(); // 'legacyApi' is restricted from being used. Only these properties are allowed: stableMethod.
+```
+
+Examples of **correct** code for this rule:
+
+```js
+/* no-restricted-properties: ["error", { "object": "legacyApi", "allowProperties": ["stableMethod"] }] */
+
+legacyApi.stableMethod();
+```
+
+## Configuration
+
+###
+
+type: `object`
+
+#### allowObjects
+
+type: `string[]`
+
+default: `null`
+
+Objects where property access should be allowed. This must be used with `property` and
+cannot be used with `object`.
+
+#### allowProperties
+
+type: `string[]`
+
+default: `null`
+
+Properties where property access should be allowed. This must be used with `object` and
+cannot be used with `property`.
+
+#### message
+
+type: `string`
+
+default: `null`
+
+A custom message to display.
+
+#### object
+
+type: `string`
+
+default: `null`
+
+The object on which the property is being accessed.
+
+#### property
+
+type: `string`
+
+default: `null`
+
+The property being accessed. If `object` is not specified, this applies to the named
+property on all objects.
+
+## How to use
+
+## Version
+
+This rule was added in v1.63.0.
 
 ## References
 
@@ -19424,6 +19704,139 @@ async function foo() {
 ## Version
 
 This rule was added in v0.4.2.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/eslint/require-unicode-regexp.md
+---
+
+### What it does
+
+Enforce the use of `u` or `v` flag on regular expressions.
+
+### Why is this bad?
+
+RegExp `u` flag has two effects:
+
+1. Make the regular expression handling UTF-16 surrogate pairs correctly.
+
+```js
+/^[👍]$/.test("👍") //→ false
+/^[👍]$/u.test("👍") //→ true
+```
+
+2. Make the regular expression throwing syntax errors early as disabling [Annex B extensions](https://262.ecma-international.org/6.0/#sec-regular-expressions-patterns).
+   Because of historical reason, JavaScript regular expressions are tolerant of syntax errors.
+   For example, `/\w{1, 2/` is a syntax error, but JavaScript doesn’t throw the error. It matches strings such as `"a{1, 2"` instead. Such a recovering logic is defined in Annex B.
+
+The RegExp `v` flag, introduced in ECMAScript 2024, is a superset of the `u` flag, and offers two more features:
+
+1. Unicode properties of strings
+
+```js
+const re = /^\p{RGI_Emoji}$/v;
+
+// Match an emoji that consists of just 1 code point:
+re.test("⚽"); // '\u26BD'
+// → true ✅
+
+// Match an emoji that consists of multiple code points:
+re.test("👨🏾‍⚕️"); // '\u{1F468}\u{1F3FE}\u200D\u2695\uFE0F'
+// → true ✅
+```
+
+2. Set notation
+   It allows for set operations between character classes:
+
+```js
+const re = /[\p{White_Space}&&\p{ASCII}]/v;
+re.test("\n"); // → true
+re.test("\u2028"); // → false
+```
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```js
+const a = /aaa/;
+const b = /bbb/gi;
+const c = new RegExp("ccc");
+const d = new RegExp("ddd", "gi");
+```
+
+Examples of **correct** code for this rule:
+
+```js
+const a = /aaa/u;
+const b = /bbb/giu;
+const c = new RegExp("ccc", "u");
+const d = new RegExp("ddd", "giu");
+
+const e = /aaa/v;
+const f = /bbb/giv;
+const g = new RegExp("ccc", "v");
+const h = new RegExp("ddd", "gv");
+
+// This rule ignores RegExp calls if the flags could not be evaluated to a static value.
+function i(flags) {
+  return new RegExp("eee", flags);
+}
+```
+
+## Configuration
+
+### requireFlag
+
+type: `"u" | "v"`
+
+default: `null`
+
+The `u` flag may be preferred in environments that do not support the `v` flag.
+
+Examples of **incorrect** code for this rule with the `{ "requireFlag": "u" }` option:
+
+```js
+const fooEmpty = /foo/;
+const fooEmptyRegexp = new RegExp("foo");
+const foo = /foo/v;
+const fooRegexp = new RegExp("foo", "v");
+```
+
+Examples of **correct** code for this rule with the `{ "requireFlag": "u" }` option:
+
+```js
+const foo = /foo/u;
+const fooRegexp = new RegExp("foo", "u");
+```
+
+The `v` flag may be a better choice when it is supported because it has more features than the `u` flag (e.g., the ability to test Unicode properties of strings).
+It does have a stricter syntax, however (e.g., the need to escape certain characters within character classes).
+
+Examples of **incorrect** code for this rule with the `{ "requireFlag": "v" }` option:
+
+```js
+const fooEmpty = /foo/;
+const fooEmptyRegexp = new RegExp("foo");
+const foo = /foo/u;
+const fooRegexp = new RegExp("foo", "u");
+```
+
+Examples of **correct** code for this rule with the `{ "requireFlag": "v" }` option:
+
+```js
+const foo = /foo/v;
+const fooRegexp = new RegExp("foo", "v");
+```
+
+## How to use
+
+## Version
+
+This rule was added in v1.63.0.
 
 ## References
 
@@ -23727,51 +24140,6 @@ This rule was added in v0.11.1.
 ---
 
 ---
-url: /docs/guide/usage/formatter/ignore-comments.md
----
-# Inline ignore comments
-
-For JS/TS files, use `oxfmt-ignore` to skip formatting the next statement:
-
-```js
-// oxfmt-ignore
-const a    = 42;
-
-/* oxfmt-ignore */
-const x = () => { return 2; };
-
-<>
-  {/* oxfmt-ignore */}
-  <span   ugly   format=""   />
-</>;
-```
-
-For JS-in-Vue, use `oxfmt-ignore` inside the `<script>` tag:
-
-```vue
-<script>
-// oxfmt-ignore
-const a    = 42;
-</script>
-```
-
-Trailing ignore comments are also supported:
-
-```js
-const a    = 42; // oxfmt-ignore
-```
-
-For other files and non-JS parts of Vue files (e.g., `<template>`, `<style>`), use `prettier-ignore` comment. See also Prettier's [ignore documentation](https://prettier.io/docs/ignore#html).
-
-Currently, TOML files do not support ignore comments.
-
-## Prettier compatibility
-
-* `prettier-ignore` comment is also supported
-
----
-
----
 url: /docs/guide/usage/linter/ignore-comments.md
 description: Disable specific rules inline using Oxlint ignore comments
 ---
@@ -23882,6 +24250,51 @@ export default defineConfig({
 ```
 
 :::
+
+---
+
+---
+url: /docs/guide/usage/formatter/ignore-comments.md
+---
+# Inline ignore comments
+
+For JS/TS files, use `oxfmt-ignore` to skip formatting the next statement:
+
+```js
+// oxfmt-ignore
+const a    = 42;
+
+/* oxfmt-ignore */
+const x = () => { return 2; };
+
+<>
+  {/* oxfmt-ignore */}
+  <span   ugly   format=""   />
+</>;
+```
+
+For JS-in-Vue, use `oxfmt-ignore` inside the `<script>` tag:
+
+```vue
+<script>
+// oxfmt-ignore
+const a    = 42;
+</script>
+```
+
+Trailing ignore comments are also supported:
+
+```js
+const a    = 42; // oxfmt-ignore
+```
+
+For other files and non-JS parts of Vue files (e.g., `<template>`, `<style>`), use `prettier-ignore` comment. See also Prettier's [ignore documentation](https://prettier.io/docs/ignore#html).
+
+Currently, TOML files do not support ignore comments.
+
+## Prettier compatibility
+
+* `prettier-ignore` comment is also supported
 
 ---
 
@@ -24124,38 +24537,6 @@ the `test` keywords, with multiple permutations for each:
 
 It's a good practice to be consistent in your test suite, so that all tests are written in the same way.
 
-### Examples
-
-```javascript
-/* jest/consistent-test-it: ["error", {"fn": "test"}] */
-test("foo"); // valid
-test.only("foo"); // valid
-
-it("foo"); // invalid
-it.only("foo"); // invalid
-```
-
-```javascript
-/* jest/consistent-test-it: ["error", {"fn": "it"}] */
-it("foo"); // valid
-it.only("foo"); // valid
-test("foo"); // invalid
-test.only("foo"); // invalid
-```
-
-```javascript
-/* jest/consistent-test-it: ["error", {"fn": "it", "withinDescribe": "test"}] */
-it("foo"); // valid
-describe("foo", function () {
-  test("bar"); // valid
-});
-
-test("foo"); // invalid
-describe("foo", function () {
-  it("bar"); // invalid
-});
-```
-
 ## Configuration
 
 This rule accepts a configuration object with the following properties:
@@ -24168,6 +24549,34 @@ default: `"test"`
 
 Decides whether to use `test` or `it`.
 
+Examples of **incorrect** code for `{ "fn": "test" }`:
+
+```javascript
+it("foo");
+it.only("foo");
+```
+
+Examples of **correct** code for `{ "fn": "test" }`:
+
+```javascript
+test("foo");
+test.only("foo");
+```
+
+Examples of **incorrect** code for `{ "fn": "it" }`:
+
+```javascript
+test("foo");
+test.only("foo");
+```
+
+Examples of **correct** code for `{ "fn": "it" }`:
+
+```javascript
+it("foo");
+it.only("foo");
+```
+
 ### withinDescribe
 
 type: `"it" | "test"`
@@ -24176,6 +24585,22 @@ default: `"it"`
 
 Decides whether to use `test` or `it` within a `describe` scope.
 If only `fn` is provided, this will default to the value of `fn`.
+
+Examples of **incorrect** code for `{ "withinDescribe": "test" }`:
+
+```javascript
+describe("foo", function () {
+  it("bar");
+});
+```
+
+Examples of **correct** code for `{ "withinDescribe": "test" }`:
+
+```javascript
+describe("foo", function () {
+  test("bar");
+});
+```
 
 ## How to use
 
@@ -24421,12 +24846,14 @@ url: /docs/guide/usage/linter/rules/jest/no-alias-methods.md
 
 ### What it does
 
-This rule ensures that only the canonical name as used in the Jest documentation is used in the code.
+Enforces Jest's canonical matcher names instead of aliases.
 
 ### Why is this bad?
 
-These aliases are going to be removed in the next major version of Jest - see [jestjs/jest#13164](https://github.com/jestjs/jest/issues/13164) for more.
-This rule will make it easier to search for all occurrences of the method within code, and it ensures consistency among the method names used.
+Jest matcher aliases are deprecated and are going to be removed in the next major version of Jest.
+See [jestjs/jest#13164](https://github.com/jestjs/jest/issues/13164) for more.
+
+This rule makes it easier to search for all occurrences of a matcher and ensures consistency among matcher names.
 
 ### Examples
 
@@ -24460,32 +24887,6 @@ expect(a).toHaveReturnedWith();
 expect(a).toHaveLastReturnedWith();
 expect(a).toHaveNthReturnedWith();
 expect(a).toThrow();
-```
-
-Examples of **incorrect** code for this rule with vitest:
-
-```javascript
-expect(a).toBeCalled();
-expect(a).toBeCalledTimes();
-expect(a).not["toThrowError"]();
-```
-
-Examples of **correct** code for this rule with vitest:
-
-```javascript
-expect(a).toHaveBeenCalled();
-expect(a).toHaveBeenCalledTimes();
-expect(a).toHaveBeenCalledWith();
-expect(a).toHaveBeenLastCalledWith();
-expect(a).toHaveBeenNthCalledWith();
-expect(a).toHaveReturned();
-expect(a).toHaveReturnedTimes();
-expect(a).toHaveReturnedWith();
-expect(a).toHaveLastReturnedWith();
-expect(a).toHaveNthReturnedWith();
-expect(a).toThrow();
-expect(a).rejects;
-expect(a);
 ```
 
 ## How to use
@@ -25751,17 +26152,6 @@ xtest("foo"); // invalid
 xdescribe("foo"); // invalid
 ```
 
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/v1.1.9/docs/rules/no-test-prefixes.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/no-test-prefixes": "error"
-  }
-}
-```
-
 ## How to use
 
 ## Version
@@ -25804,17 +26194,6 @@ test("one", () => {
 });
 ```
 
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/no-test-return-statement.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/no-test-return-statement": "error"
-  }
-}
-```
-
 ## How to use
 
 ## Version
@@ -25855,17 +26234,6 @@ Examples of **correct** code for this rule:
 
 ```js
 await expect(doSomethingAsync()).rejects.toThrow();
-```
-
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/no-unneeded-async-expect-function.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/no-unneeded-async-expect-function": "error"
-  }
-}
 ```
 
 ## How to use
@@ -26092,17 +26460,6 @@ expect(anyArgsFunction).toBeCalledTimes(1);
 expect(uncalledFunction).not.toBeCalled();
 ```
 
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-called-with.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-called-with": "error"
-  }
-}
-```
-
 ## How to use
 
 ## Version
@@ -26154,17 +26511,6 @@ expect(x).toBeLessThanOrEqual(y);
 expect(x < "Carl").toBe(true);
 ```
 
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-comparison-matcher.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-comparison-matcher": "error"
-  }
-}
-```
-
 ## How to use
 
 ## Version
@@ -26207,17 +26553,6 @@ Examples of **correct** code for this rule:
 describe.each(items)("item", (item) => {
   expect(item).toBe("foo");
 });
-```
-
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-each.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-each": "error"
-  }
-}
 ```
 
 ## How to use
@@ -26387,17 +26722,6 @@ Examples of **correct** code for this rule:
 expect(x).toBe(5);
 expect(name).not.toEqual("Carl");
 expect(myObj).toStrictEqual(thatObj);
-```
-
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-equality-matcher.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-equality-matcher": "error"
-  }
-}
 ```
 
 ## How to use
@@ -26601,17 +26925,6 @@ it("errors", async () => {
 });
 ```
 
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-expect-resolves.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-expect-resolves": "error"
-  }
-}
-```
-
 ## How to use
 
 ## Version
@@ -26729,17 +27042,6 @@ describe("foo", () => {
     removeMyDatabase();
   });
 });
-```
-
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/v1.1.9/docs/rules/prefer-hooks-in-order.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-hooks-in-order": "error"
-  }
-}
 ```
 
 ## How to use
@@ -26877,17 +27179,6 @@ describe("foo", () => {
     });
   });
 });
-```
-
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-hooks-on-top.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-hooks-on-top": "error"
-  }
-}
 ```
 
 ## How to use
@@ -27048,17 +27339,6 @@ Examples of **correct** code for this rule:
 it("adds 1 + 2 to equal 3", () => {
   expect(sum(1, 2)).toBe(3);
 });
-```
-
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-lowercase-title.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-lowercase-title": "error"
-  }
-}
 ```
 
 ## Configuration
@@ -27231,17 +27511,6 @@ myFunction
   .mockRejectedValue(new Error("too many calls!"));
 ```
 
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-mock-promise-shorthand.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-mock-promise-shorthand": "error"
-  }
-}
-```
-
 ## How to use
 
 ## Version
@@ -27262,7 +27531,7 @@ When working with mocks of functions that return simple values, Jest provides so
 
 ### Why is this bad?
 
-Not using Jest’s API sugar functions adds unnecessary boilerplate and makes tests harder to read. These helpers clearly express intent
+Not using Jest's API sugar functions adds unnecessary boilerplate and makes tests harder to read. These helpers clearly express intent
 and reduce errors, keeping tests simple and maintainable.
 
 ### Examples
@@ -27295,17 +27564,6 @@ jest.spyOn(fs, "readFileSync").mockImplementationOnce(() => {
 });
 
 myFunction.mockResolvedValueOnce(42).mockResolvedValueOnce(42).mockReturnValue(0);
-```
-
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-mock-return-shorthand.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-mock-return-shorthand": "error"
-  }
-}
 ```
 
 ## How to use
@@ -27488,17 +27746,6 @@ describe("cli", () => {
 });
 ```
 
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-snapshot-hint.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-snapshot-hint": "error"
-  }
-}
-```
-
 ## Configuration
 
 This rule accepts one of the following string values:
@@ -27562,17 +27809,6 @@ jest.spyOn(Date, "now");
 jest.spyOn(Date, "now").mockImplementation(() => 10);
 ```
 
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-spy-on.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-spy-on": "error"
-  }
-}
-```
-
 ## How to use
 
 ## Version
@@ -27610,17 +27846,6 @@ Examples of **correct** code for this rule:
 
 ```javascript
 expect({ a: "a", b: undefined }).toStrictEqual({ a: "a" });
-```
-
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-strict-equal.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-strict-equal": "error"
-  }
-}
 ```
 
 ## How to use
@@ -27671,17 +27896,6 @@ expect(getMessage()).toBe("hello world");
 expect(loadMessage()).resolves.toBe("hello world");
 expect(didError).not.toBe(true);
 expect(catchError()).toStrictEqual({ message: "oh noes!" });
-```
-
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-to-be.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-to-be": "error"
-  }
-}
 ```
 
 ## How to use
@@ -27810,17 +28024,6 @@ expect(uncalledFunction).not.toBeCalled();
 expect(method.mock.calls[0][0]).toStrictEqual(value);
 ```
 
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-to-have-been-called-times.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-to-have-been-called-times": "error"
-  }
-}
-```
-
 ## How to use
 
 ## Version
@@ -27859,17 +28062,6 @@ Examples of **correct** code for this rule:
 
 ```javascript
 expect(files).toHaveLength(1);
-```
-
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/prefer-to-have-length.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/prefer-to-have-length": "error"
-  }
-}
 ```
 
 ## How to use
@@ -28043,17 +28235,6 @@ afterEach(() => {
 });
 ```
 
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/require-hook.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/require-hook": "error"
-  }
-}
-```
-
 ## Configuration
 
 This rule accepts a configuration object with the following properties:
@@ -28114,17 +28295,6 @@ test("all the things", async () => {
   await expect(a()).rejects.toThrow("a");
   await expect(a()).rejects.toThrowError("a");
 });
-```
-
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/main/docs/rules/require-to-throw-message.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/require-to-throw-message": "error"
-  }
-}
 ```
 
 ## How to use
@@ -28255,17 +28425,6 @@ describe("myFunction", () =>
   it("returns a truthy value", () => {
     expect(myFunction()).toBeTruthy();
   }));
-```
-
-This rule is compatible with [eslint-plugin-vitest](https://github.com/vitest-dev/eslint-plugin-vitest/blob/v1.1.9/docs/rules/valid-describe-callback.md),
-to use it, add the following configuration to your `.oxlintrc.json`:
-
-```json
-{
-  "rules": {
-    "vitest/valid-describe-callback": "error"
-  }
-}
 ```
 
 ## How to use
@@ -30688,6 +30847,68 @@ This rule was added in v0.0.19.
 ---
 
 ---
+url: /docs/guide/usage/linter/rules/jsx_a11y/interactive-supports-focus.md
+---
+
+### What it does
+
+Enforce that elements with interactive roles and interaction handlers
+(mouse or key press) must be focusable.
+
+### Why is this bad?
+
+Elements that handle user interaction (e.g., `onClick`) but are not
+natively focusable (like `<div>` or `<span>`) must be made focusable so
+that keyboard-only users and assistive technology users can reach and
+activate them.
+
+Without a `tabIndex`, these elements are unreachable via keyboard navigation,
+creating a barrier for users who cannot use a mouse.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```jsx
+<span onClick={submitForm} role="button">Submit</span>
+<a onClick={showNextPage} role="button">Next page</a>
+```
+
+Examples of **correct** code for this rule:
+
+```jsx
+<div aria-hidden onClick={() => void 0} />
+<span onClick={doSomething} tabIndex={0} role="button">Click me!</span>
+<span onClick={doSomething} tabIndex={-1} role="menuitem">Click me too!</span>
+<a href="javascript:void(0);" onClick={doSomething}>Click ALL the things!</a>
+<button onClick={doSomething}>Click the button :)</button>
+```
+
+## Configuration
+
+This rule accepts a configuration object with the following properties:
+
+### tabbable
+
+type: `string[]`
+
+default: `["button", "checkbox", "link", "searchbox", "spinbutton", "switch", "textbox"]`
+
+An array of interactive ARIA roles that should be considered tabbable (require `tabIndex={0}`).
+Interactive roles not in this list are only required to be focusable (`tabIndex={-1}` is sufficient).
+Defaults to `["button", "checkbox", "link", "searchbox", "spinbutton", "switch", "textbox"]`.
+
+## How to use
+
+## Version
+
+This rule was added in v1.63.0.
+
+## References
+
+---
+
+---
 url: /docs/guide/usage/linter/rules/jsx_a11y/label-has-associated-control.md
 ---
 
@@ -32178,6 +32399,120 @@ For adding new rules, remember to update this list.
 The repository provides the minimum code configuration for creating a linter.
 
 > [Minimal Linter Code](https://github.com/oxc-project/oxc/blob/main/crates/oxc_linter/examples/linter.rs)
+
+---
+
+---
+url: /docs/guide/usage/linter/generated-lsp-config.md
+---
+
+# LSP Options for linting, which can be defined for each workspace folder separately.
+
+It can be sent by the client in `initialize` or `workspace/didChangeConfiguration` requests.
+If the client supports `workspace/configuration`, the server will request the options from the client.
+
+## Example
+
+Example of `initialize` request:
+
+```json
+{
+  "processId": 123,
+  "rootUri": null,
+  "workspaceFolders": [],
+  "capabilities": {},
+  "initializationOptions": [
+    {
+      "workspaceUri": "file:///home/user/project",
+      "options": {
+        "unusedDisableDirectives": "deny",
+        "typeAware": true
+      }
+    }
+  ]
+}
+```
+
+Example of `workspace/didChangeConfiguration` request:
+
+```json
+{
+  "settings": [
+    {
+      "workspaceUri": "file:///home/user/project",
+      "options": {
+        "unusedDisableDirectives": "deny",
+        "disableNestedConfig": true
+      }
+    }
+  ]
+}
+```
+
+## configPath
+
+type: `string`
+
+Path to the config file. Similar to `--config` CLI option.
+If set, it disables searching for config files.
+
+## disableNestedConfig
+
+type: `boolean`
+
+Whether to disable nested config support. Similar to `--disable-nested-config` CLI option.
+It gets automatically enabled when `configPath` is set.
+
+## fixKind
+
+type: `"safe_fix" | "safe_fix_or_suggestion" | "dangerous_fix" | "dangerous_fix_or_suggestion" | "none" | "all"`
+
+What kind of fixes to generate for code actions.
+
+## rulesCustomization
+
+type: `Record<string, object>`
+
+Customization for individual rules, allows to override the linter's diagnostics and autofix.
+Example of lowering the severity of "no-unused-vars" rule to "hint" and disabling autofix for it:
+
+```json
+{
+  "rulesCustomization": {
+    "no-unused-vars": {
+      "severity": "hint",
+      "autofix": false
+    }
+  }
+}
+```
+
+## run
+
+type: `"onSave" | "onType"`
+
+If your editor does not support `textDocument/diagnostic`,
+this option handles when diagnostics are sent to the client.
+
+## tsConfigPath
+
+type: `string`
+
+Path to the tsconfig file. Similar to `--tsconfig` CLI option.
+If set, it disables auto discovery for tsconfig files.
+
+## typeAware
+
+type: `boolean`
+
+Whether to enable/disable type-aware linting.
+It will override the root config's `typeAware` option if set.
+
+## unusedDisableDirectives
+
+type: `"allow" | "warn" | "deny"`
+
+How to handle unused disable directives. By default, they are allowed and ignored.
 
 ---
 
@@ -36604,7 +36939,7 @@ description: >-
 ---
 
 ---
-url: /docs/guide/usage/linter/config-file-reference.md
+url: /docs/guide/usage/linter/generated-config.md
 ---
 
 # Oxlint Configuration File
@@ -36880,7 +37215,12 @@ by giving the JS plugin an alias.
 ```json
 {
   "plugins": ["import"],
-  "jsPlugins": [{ "name": "import-js", "specifier": "eslint-plugin-import" }],
+  "jsPlugins": [
+    {
+      "name": "import-js",
+      "specifier": "eslint-plugin-import"
+    }
+  ],
   "rules": {
     "import/no-cycle": "error",
     "import-js/no-unresolved": "warn"
@@ -37151,7 +37491,8 @@ default: `null`
 Jest version — accepts a number (`29`) or a semver string (`"29.1.0"` or `"v29.1.0"`),
 storing only the major version.
 ::: warning
-Using this config will override the `no-deprecated-functions`' config set.
+Using this config will override the `no-deprecated-functions` config set.
+:::
 
 ### settings.jsdoc
 
@@ -37456,7 +37797,7 @@ to accommodate TypeScript type checking scenarios.
 ---
 
 ---
-url: /docs/guide/usage/linter/generated-config.md
+url: /docs/guide/usage/linter/config-file-reference.md
 ---
 
 # Oxlint Configuration File
@@ -37732,7 +38073,12 @@ by giving the JS plugin an alias.
 ```json
 {
   "plugins": ["import"],
-  "jsPlugins": [{ "name": "import-js", "specifier": "eslint-plugin-import" }],
+  "jsPlugins": [
+    {
+      "name": "import-js",
+      "specifier": "eslint-plugin-import"
+    }
+  ],
   "rules": {
     "import/no-cycle": "error",
     "import-js/no-unresolved": "warn"
@@ -38003,7 +38349,8 @@ default: `null`
 Jest version — accepts a number (`29`) or a semver string (`"29.1.0"` or `"v29.1.0"`),
 storing only the major version.
 ::: warning
-Using this config will override the `no-deprecated-functions`' config set.
+Using this config will override the `no-deprecated-functions` config set.
+:::
 
 ### settings.jsdoc
 
@@ -38413,185 +38760,6 @@ Test results are stored in snapshot files for tracking changes:
 * [`parser_test262.snap`](https://github.com/oxc-project/oxc/blob/main/tasks/coverage/snapshots/parser_test262.snap)
 * [`parser_babel.snap`](https://github.com/oxc-project/oxc/blob/main/tasks/coverage/snapshots/parser_babel.snap)
 * [`parser_typescript.snap`](https://github.com/oxc-project/oxc/blob/main/tasks/coverage/snapshots/parser_typescript.snap)
-
----
-
----
-url: /docs/learn/architecture/parser.md
----
-
-# Parser Architecture
-
-Oxc maintains its own AST and parser, which is by far the fastest and most conformant JavaScript and TypeScript (including JSX and TSX) parser written in Rust.
-
-As the parser often represents a key performance bottleneck in JavaScript tooling,
-any minor improvements can have a cascading effect on our downstream tools.
-By developing our parser, we have the opportunity to explore and implement well-researched performance techniques.
-
-## AST Design Philosophy
-
-While many existing JavaScript tools rely on [estree] as their AST specification,
-a notable drawback is its abundance of ambiguous nodes.
-This ambiguity often leads to confusion during development with [estree].
-
-The Oxc AST differs from the [estree] AST by removing ambiguous nodes and introducing distinct types.
-For example, instead of using a generic [estree] `Identifier`,
-the Oxc AST provides specific types such as `BindingIdentifier`, `IdentifierReference`, and `IdentifierName`.
-
-This clear distinction greatly enhances the development experience by aligning more closely with the ECMAScript specification.
-
-### AST Node Types
-
-```rust
-// Instead of generic Identifier
-pub struct BindingIdentifier<'a> {
-    pub span: Span,
-    pub name: Atom<'a>,
-}
-
-pub struct IdentifierReference<'a> {
-    pub span: Span,
-    pub name: Atom<'a>,
-    pub reference_id: Cell<Option<ReferenceId>>,
-}
-
-pub struct IdentifierName<'a> {
-    pub span: Span,
-    pub name: Atom<'a>,
-}
-```
-
-### Semantic Clarity
-
-This approach provides semantic clarity:
-
-* **`BindingIdentifier`**: Variable declarations (`let x = 1`)
-* **`IdentifierReference`**: Variable usage (`console.log(x)`)
-* **`IdentifierName`**: Property names (`obj.property`)
-
-## Performance Architecture
-
-### How is it so fast
-
-* **Memory Arena**: AST is allocated in a [memory arena](https://crates.io/crates/bumpalo) for fast allocation and deallocation
-* **String Optimization**: Short strings are inlined by [CompactString](https://crates.io/crates/compact_str)
-* **Minimal Heap Usage**: No other heap allocations are done except the above two
-* **Separation of Concerns**: Scope binding, symbol resolution and some syntax errors are delegated to the semantic analyzer
-
-### Memory Management Details
-
-#### Arena Allocation
-
-```rust
-use oxc_allocator::Allocator;
-
-// All AST nodes are allocated in this arena
-let allocator = Allocator::default();
-let ast_node = allocator.alloc(Expression::NumericLiteral(
-    allocator.alloc(NumericLiteral { value: 42.0, span: SPAN })
-));
-```
-
-Benefits:
-
-* **O(1) allocation**: Simple pointer bump
-* **O(1) deallocation**: Drop entire arena at once
-* **Cache-friendly**: Linear memory layout
-* **No fragmentation**: Continuous memory usage
-
-#### String Interning with CompactString
-
-```rust
-// Strings ≤ 24 bytes are stored inline (no heap allocation)
-let short_name = CompactString::from("variableName");  // Stack allocated
-let long_name = CompactString::from("a_very_long_variable_name_that_exceeds_limit");  // Heap allocated
-```
-
-This reduces memory allocations for the majority of JavaScript identifiers and string literals.
-
-## Parser Architecture
-
-### Two-Phase Design
-
-The Oxc parser follows a two-phase approach:
-
-1. **Parsing Phase**: Build AST structure with minimal semantic analysis
-2. **Semantic Phase**: Perform scope analysis, symbol resolution, and advanced error checking
-
-```rust
-// Phase 1: Parse to AST
-let parser_result = Parser::new(&allocator, &source_text, source_type).parse();
-
-// Phase 2: Semantic analysis
-let semantic_result = SemanticBuilder::new()
-    // Enable additional syntax checks not performed by the parser
-    .with_check_syntax_error(true)
-    .build(&parser_result.program);
-```
-
-### Parser Components
-
-#### Lexer
-
-* **Token generation**: Converts source text to structured tokens
-* **SIMD optimization**: Uses SIMD instructions for whitespace skipping
-* **Context-aware**: Handles regex vs division operator disambiguation
-
-#### Recursive Descent Parser
-
-* **Hand-written**: Custom implementation for maximum performance
-* **Error recovery**: Advanced error handling with meaningful messages
-* **Grammar compliance**: Follows ECMAScript specification precisely
-
-#### AST Builder
-
-* **Type safety**: Leverages Rust's type system for correctness
-* **Memory efficiency**: Direct arena allocation
-* **Builder pattern**: Convenient node construction methods
-
-## Conformance Strategy
-
-### Test Suite Coverage
-
-* **Test262**: 100% pass rate on ECMAScript conformance tests
-* **Babel**: 99.62% compatibility with Babel parser tests
-* **TypeScript**: 99.86% compatibility with TypeScript compiler tests
-
-### Error Handling Philosophy
-
-```rust
-// Meaningful error messages with source location
-pub struct OxcDiagnostic {
-    pub message: String,
-    pub span: Span,
-    pub severity: Severity,
-    pub help: Option<String>,
-}
-```
-
-The parser provides:
-
-* **Precise error locations**: Exact source positions
-* **Recovery strategies**: Continue parsing after errors
-* **Helpful suggestions**: Actionable error messages
-
-## Advanced Features
-
-### TypeScript Support
-
-* **Type stripping**: Removes TypeScript-specific syntax
-* **Decorator parsing**: Handles experimental decorators
-* **Namespace support**: Full module and namespace parsing
-* **JSX integration**: TypeScript + JSX (TSX) support
-
-### Research Areas
-
-* **SIMD text processing**: Vectorized string operations
-* **Cache optimization**: Minimize memory access patterns
-* **Branch prediction**: Optimize hot parsing paths
-* **Zero-copy parsing**: Eliminate unnecessary string copies
-
-[estree]: https://github.com/estree/estree
 
 ---
 
@@ -39066,6 +39234,185 @@ function isParenthesizedArrowFunctionExpression(): Tristate {
 ```
 
 In summary, the TypeScript parser uses a combination of lookahead (fast path) and backtracking to parse arrow functions.
+
+---
+
+---
+url: /docs/learn/architecture/parser.md
+---
+
+# Parser Architecture
+
+Oxc maintains its own AST and parser, which is by far the fastest and most conformant JavaScript and TypeScript (including JSX and TSX) parser written in Rust.
+
+As the parser often represents a key performance bottleneck in JavaScript tooling,
+any minor improvements can have a cascading effect on our downstream tools.
+By developing our parser, we have the opportunity to explore and implement well-researched performance techniques.
+
+## AST Design Philosophy
+
+While many existing JavaScript tools rely on [estree] as their AST specification,
+a notable drawback is its abundance of ambiguous nodes.
+This ambiguity often leads to confusion during development with [estree].
+
+The Oxc AST differs from the [estree] AST by removing ambiguous nodes and introducing distinct types.
+For example, instead of using a generic [estree] `Identifier`,
+the Oxc AST provides specific types such as `BindingIdentifier`, `IdentifierReference`, and `IdentifierName`.
+
+This clear distinction greatly enhances the development experience by aligning more closely with the ECMAScript specification.
+
+### AST Node Types
+
+```rust
+// Instead of generic Identifier
+pub struct BindingIdentifier<'a> {
+    pub span: Span,
+    pub name: Atom<'a>,
+}
+
+pub struct IdentifierReference<'a> {
+    pub span: Span,
+    pub name: Atom<'a>,
+    pub reference_id: Cell<Option<ReferenceId>>,
+}
+
+pub struct IdentifierName<'a> {
+    pub span: Span,
+    pub name: Atom<'a>,
+}
+```
+
+### Semantic Clarity
+
+This approach provides semantic clarity:
+
+* **`BindingIdentifier`**: Variable declarations (`let x = 1`)
+* **`IdentifierReference`**: Variable usage (`console.log(x)`)
+* **`IdentifierName`**: Property names (`obj.property`)
+
+## Performance Architecture
+
+### How is it so fast
+
+* **Memory Arena**: AST is allocated in a [memory arena](https://crates.io/crates/bumpalo) for fast allocation and deallocation
+* **String Optimization**: Short strings are inlined by [CompactString](https://crates.io/crates/compact_str)
+* **Minimal Heap Usage**: No other heap allocations are done except the above two
+* **Separation of Concerns**: Scope binding, symbol resolution and some syntax errors are delegated to the semantic analyzer
+
+### Memory Management Details
+
+#### Arena Allocation
+
+```rust
+use oxc_allocator::Allocator;
+
+// All AST nodes are allocated in this arena
+let allocator = Allocator::default();
+let ast_node = allocator.alloc(Expression::NumericLiteral(
+    allocator.alloc(NumericLiteral { value: 42.0, span: SPAN })
+));
+```
+
+Benefits:
+
+* **O(1) allocation**: Simple pointer bump
+* **O(1) deallocation**: Drop entire arena at once
+* **Cache-friendly**: Linear memory layout
+* **No fragmentation**: Continuous memory usage
+
+#### String Interning with CompactString
+
+```rust
+// Strings ≤ 24 bytes are stored inline (no heap allocation)
+let short_name = CompactString::from("variableName");  // Stack allocated
+let long_name = CompactString::from("a_very_long_variable_name_that_exceeds_limit");  // Heap allocated
+```
+
+This reduces memory allocations for the majority of JavaScript identifiers and string literals.
+
+## Parser Architecture
+
+### Two-Phase Design
+
+The Oxc parser follows a two-phase approach:
+
+1. **Parsing Phase**: Build AST structure with minimal semantic analysis
+2. **Semantic Phase**: Perform scope analysis, symbol resolution, and advanced error checking
+
+```rust
+// Phase 1: Parse to AST
+let parser_result = Parser::new(&allocator, &source_text, source_type).parse();
+
+// Phase 2: Semantic analysis
+let semantic_result = SemanticBuilder::new()
+    // Enable additional syntax checks not performed by the parser
+    .with_check_syntax_error(true)
+    .build(&parser_result.program);
+```
+
+### Parser Components
+
+#### Lexer
+
+* **Token generation**: Converts source text to structured tokens
+* **SIMD optimization**: Uses SIMD instructions for whitespace skipping
+* **Context-aware**: Handles regex vs division operator disambiguation
+
+#### Recursive Descent Parser
+
+* **Hand-written**: Custom implementation for maximum performance
+* **Error recovery**: Advanced error handling with meaningful messages
+* **Grammar compliance**: Follows ECMAScript specification precisely
+
+#### AST Builder
+
+* **Type safety**: Leverages Rust's type system for correctness
+* **Memory efficiency**: Direct arena allocation
+* **Builder pattern**: Convenient node construction methods
+
+## Conformance Strategy
+
+### Test Suite Coverage
+
+* **Test262**: 100% pass rate on ECMAScript conformance tests
+* **Babel**: 99.62% compatibility with Babel parser tests
+* **TypeScript**: 99.86% compatibility with TypeScript compiler tests
+
+### Error Handling Philosophy
+
+```rust
+// Meaningful error messages with source location
+pub struct OxcDiagnostic {
+    pub message: String,
+    pub span: Span,
+    pub severity: Severity,
+    pub help: Option<String>,
+}
+```
+
+The parser provides:
+
+* **Precise error locations**: Exact source positions
+* **Recovery strategies**: Continue parsing after errors
+* **Helpful suggestions**: Actionable error messages
+
+## Advanced Features
+
+### TypeScript Support
+
+* **Type stripping**: Removes TypeScript-specific syntax
+* **Decorator parsing**: Handles experimental decorators
+* **Namespace support**: Full module and namespace parsing
+* **JSX integration**: TypeScript + JSX (TSX) support
+
+### Research Areas
+
+* **SIMD text processing**: Vectorized string operations
+* **Cache optimization**: Minimize memory access patterns
+* **Branch prediction**: Optimize hot parsing paths
+* **Zero-copy parsing**: Eliminate unnecessary string copies
+
+[estree]: https://github.com/estree/estree
 
 ---
 
@@ -41105,179 +41452,6 @@ This rule was added in v0.7.1.
 ---
 
 ---
-url: /docs/guide/usage/formatter/quickstart.md
-description: Install Oxfmt and learn the common workflows.
----
-
-# Quickstart
-
-Recommended setup and common workflows.
-
-## Install
-
-Install `oxfmt` as a dev dependency:
-
-::: code-group
-
-```sh [npm]
-$ npm add -D oxfmt
-```
-
-```sh [pnpm]
-$ pnpm add -D oxfmt
-```
-
-```sh [yarn]
-$ yarn add -D oxfmt
-```
-
-```sh [bun]
-$ bun add -D oxfmt
-```
-
-:::
-
-Add scripts to `package.json`:
-
-```json [package.json]
-{
-  "scripts": {
-    "fmt": "oxfmt",
-    "fmt:check": "oxfmt --check"
-  }
-}
-```
-
-Format files:
-
-::: code-group
-
-```sh [npm]
-npm run fmt
-```
-
-```sh [pnpm]
-pnpm run fmt
-```
-
-```sh [yarn]
-yarn run fmt
-```
-
-```sh [bun]
-bun run fmt
-```
-
-:::
-
-Check formatting without writing files:
-
-::: code-group
-
-```sh [npm]
-npm run fmt:check
-```
-
-```sh [pnpm]
-pnpm run fmt:check
-```
-
-```sh [yarn]
-yarn run fmt:check
-```
-
-```sh [bun]
-bun run fmt:check
-```
-
-:::
-
-## Usage
-
-```sh
-oxfmt [OPTIONS] [PATH]...
-```
-
-Running `oxfmt` without arguments formats the current directory (equivalent to `prettier --write .`).
-
-CLI options like `--no-semi` are not supported. Use the configuration file instead to ensure consistent settings across CLI and editor integrations.
-
-To use glob patterns in positional paths, be sure to quote them. Otherwise, they may or may not be expanded depending on your environment.
-
-For the complete list of options, see the [CLI reference](/docs/guide/usage/formatter/cli.html).
-
-## Common workflows
-
-### Pre-commit with lint-staged
-
-```json [package.json]
-{
-  "lint-staged": {
-    "*": "oxfmt --no-error-on-unmatched-pattern"
-  }
-}
-```
-
-`--no-error-on-unmatched-pattern` prevents errors when no files match the pattern.
-
-### Create a config file
-
-Initialize `.oxfmtrc.json` with defaults:
-
-```sh
-oxfmt --init
-```
-
-### Migrate from Prettier
-
-```sh
-oxfmt --migrate prettier
-```
-
-See [migrate from prettier](./migrate-from-prettier) for details.
-
-### List files that differ
-
-```sh
-oxfmt --list-different
-```
-
-This is useful for configuring [files to ignore](./ignore-files).
-
-### Piping file contents
-
-```sh
-echo 'const   x   =   1' | oxfmt --stdin-filepath test.ts
-```
-
-Prints `const x = 1;`
-
-### Node.js API
-
-```ts
-import { format, type FormatOptions } from "oxfmt";
-
-const input = `let a=42;`;
-const options: FormatOptions = {
-  semi: false,
-};
-
-const { code } = await format("a.js", input, options);
-console.log(code); // "let a = 42"
-```
-
-## Next steps
-
-* [Change configuration](./config)
-* [Setup editors](./editors)
-* [Setup CI](./ci)
-* Learn advanced features: [sorting](./sorting), [embedded formatting](./embedded-formatting)
-* [Compatibility matrix](/compatibility)
-* Check [CLI reference](./cli)
-
----
-
----
 url: /docs/guide/usage/linter/quickstart.md
 description: Install Oxlint and learn the common workflows.
 ---
@@ -41540,6 +41714,179 @@ The full list is in the [Rules reference](/docs/guide/usage/linter/rules).
 * Migrate: [From ESLint](/docs/guide/usage/linter/migrate-from-eslint)&#x20;
 * [Compatibility matrix](/compatibility)
 * [CLI reference](/docs/guide/usage/linter/cli)
+
+---
+
+---
+url: /docs/guide/usage/formatter/quickstart.md
+description: Install Oxfmt and learn the common workflows.
+---
+
+# Quickstart
+
+Recommended setup and common workflows.
+
+## Install
+
+Install `oxfmt` as a dev dependency:
+
+::: code-group
+
+```sh [npm]
+$ npm add -D oxfmt
+```
+
+```sh [pnpm]
+$ pnpm add -D oxfmt
+```
+
+```sh [yarn]
+$ yarn add -D oxfmt
+```
+
+```sh [bun]
+$ bun add -D oxfmt
+```
+
+:::
+
+Add scripts to `package.json`:
+
+```json [package.json]
+{
+  "scripts": {
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check"
+  }
+}
+```
+
+Format files:
+
+::: code-group
+
+```sh [npm]
+npm run fmt
+```
+
+```sh [pnpm]
+pnpm run fmt
+```
+
+```sh [yarn]
+yarn run fmt
+```
+
+```sh [bun]
+bun run fmt
+```
+
+:::
+
+Check formatting without writing files:
+
+::: code-group
+
+```sh [npm]
+npm run fmt:check
+```
+
+```sh [pnpm]
+pnpm run fmt:check
+```
+
+```sh [yarn]
+yarn run fmt:check
+```
+
+```sh [bun]
+bun run fmt:check
+```
+
+:::
+
+## Usage
+
+```sh
+oxfmt [OPTIONS] [PATH]...
+```
+
+Running `oxfmt` without arguments formats the current directory (equivalent to `prettier --write .`).
+
+CLI options like `--no-semi` are not supported. Use the configuration file instead to ensure consistent settings across CLI and editor integrations.
+
+To use glob patterns in positional paths, be sure to quote them. Otherwise, they may or may not be expanded depending on your environment.
+
+For the complete list of options, see the [CLI reference](/docs/guide/usage/formatter/cli.html).
+
+## Common workflows
+
+### Pre-commit with lint-staged
+
+```json [package.json]
+{
+  "lint-staged": {
+    "*": "oxfmt --no-error-on-unmatched-pattern"
+  }
+}
+```
+
+`--no-error-on-unmatched-pattern` prevents errors when no files match the pattern.
+
+### Create a config file
+
+Initialize `.oxfmtrc.json` with defaults:
+
+```sh
+oxfmt --init
+```
+
+### Migrate from Prettier
+
+```sh
+oxfmt --migrate prettier
+```
+
+See [migrate from prettier](./migrate-from-prettier) for details.
+
+### List files that differ
+
+```sh
+oxfmt --list-different
+```
+
+This is useful for configuring [files to ignore](./ignore-files).
+
+### Piping file contents
+
+```sh
+echo 'const   x   =   1' | oxfmt --stdin-filepath test.ts
+```
+
+Prints `const x = 1;`
+
+### Node.js API
+
+```ts
+import { format, type FormatOptions } from "oxfmt";
+
+const input = `let a=42;`;
+const options: FormatOptions = {
+  semi: false,
+};
+
+const { code } = await format("a.js", input, options);
+console.log(code); // "let a = 42"
+```
+
+## Next steps
+
+* [Change configuration](./config)
+* [Setup editors](./editors)
+* [Setup CI](./ci)
+* Learn advanced features: [sorting](./sorting), [embedded formatting](./embedded-formatting)
+* [Compatibility matrix](/compatibility)
+* Check [CLI reference](./cli)
 
 ---
 
@@ -51887,7 +52234,8 @@ url: /docs/guide/usage/linter/rules/typescript/no-misused-new.md
 ### What it does
 
 Enforces valid definition of new and constructor. This rule prevents classes from defining
-a method named `new` and interfaces from defining a method named `constructor`.
+a method named `new`, interfaces from defining a method named `constructor`, and interfaces
+from defining a construct signature that returns the interface itself.
 
 ### Why is this bad?
 
@@ -51895,7 +52243,9 @@ JavaScript classes may define a constructor method that runs
 when a class instance is newly created.
 
 TypeScript allows interfaces that describe a static class object to
-define a `new()` method (though this is rarely used in real world code).
+define a `new()` signature (though this is rarely used in real world code). That construct
+signature should return the constructed instance type, not the interface for the constructor
+object itself.
 Developers new to JavaScript classes and/or TypeScript interfaces may
 sometimes confuse when to use constructor or new.
 
@@ -51912,6 +52262,11 @@ declare class C {
 ```typescript
 interface I {
   new (): I;
+}
+```
+
+```typescript
+interface I {
   constructor(): void;
 }
 ```
@@ -51925,6 +52280,8 @@ declare class C {
 ```
 
 ```typescript
+class C {}
+
 interface I {
   new (): C;
 }
@@ -59549,6 +59906,54 @@ This rule was added in v0.4.2.
 ---
 
 ---
+url: /docs/guide/usage/linter/rules/unicorn/no-negated-condition.md
+---
+
+### What it does
+
+Disallow negated conditions.
+
+### Why is this bad?
+
+Negated conditions are more difficult to understand. Code can be made more readable by inverting the condition.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+if (!a) {
+  doSomethingC();
+} else {
+  doSomethingB();
+}
+
+!a ? doSomethingC() : doSomethingB();
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+if (a) {
+  doSomethingB();
+} else {
+  doSomethingC();
+}
+
+a ? doSomethingB() : doSomethingC();
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.0.18.
+
+## References
+
+---
+
+---
 url: /docs/guide/usage/linter/rules/unicorn/no-negation-in-equality-check.md
 ---
 
@@ -63963,69 +64368,6 @@ For what Oxfmt does support across frameworks and file types, see the [compatibi
 ---
 
 ---
-url: /docs/guide/usage/formatter/generated-cli.md
----
-
-## Usage
-
-**`oxfmt`** \[**`-c`**=*`PATH`*] \[*`PATH`*]...
-
-## Mode Options:
-
-* **`    --init`** —
-  Initialize `.oxfmtrc.json` with default values
-* **`    --migrate`**=*`SOURCE`* —
-  Migrate configuration to `.oxfmtrc.json` from specified source Available sources: prettier, biome
-* **`    --lsp`** —
-  Start language server protocol (LSP) server
-* **`    --stdin-filepath`**=*`PATH`* —
-  Specify the file name to use to infer which parser to use
-
-## Output Options:
-
-* **`    --write`** —
-  Format and write files in place (default)
-* **`    --check`** —
-  Check if files are formatted, also show statistics
-* **`    --list-different`** —
-  List files that would be changed
-
-## Config Options
-
-* **`-c`**, **`--config`**=*`PATH`* —
-  Path to the configuration file (.json, .jsonc, .ts, .mts, .cts, .js, .mjs, .cjs)
-* **`    --disable-nested-config`** —
-  Do not search for configuration files in subdirectories
-
-## Ignore Options
-
-* **`    --ignore-path`**=*`PATH`* —
-  Path to ignore file(s). Can be specified multiple times. If not specified, .gitignore and .prettierignore in the current directory are used.
-* **`    --with-node-modules`** —
-  Format code in node\_modules directory (skipped by default)
-
-## Runtime Options
-
-* **`    --no-error-on-unmatched-pattern`** —
-  Do not exit with error when pattern is unmatched
-* **`    --threads`**=*`INT`* —
-  Number of threads to use. Set to 1 for using only 1 CPU core.
-
-## Available positional items:
-
-* *`PATH`* —
-  Single file, path or list of paths. Glob patterns are also supported. (Be sure to quote them, otherwise your shell may expand them before passing.) Exclude patterns with `!` prefix like `'!**/fixtures/*.js'` are also supported. If not provided, current working directory is used.
-
-## Available options:
-
-* **`-h`**, **`--help`** —
-  Prints help information
-* **`-V`**, **`--version`** —
-  Prints version information
-
----
-
----
 url: /docs/guide/usage/linter/generated-cli.md
 ---
 
@@ -64143,7 +64485,7 @@ Arguments:
 ## Output
 
 * **`-f`**, **`--format`**=*`ARG`* —
-  Use a specific output format. Possible values: `checkstyle`, `default`, `github`, `gitlab`, `json`, `junit`, `stylish`, `unix`
+  Use a specific output format. Possible values: `checkstyle`, `default`, `agent`, `github`, `gitlab`, `json`, `junit`, `sarif`, `stylish`, `unix`
 
 ## Miscellaneous
 
@@ -64180,6 +64522,69 @@ Arguments:
   Enable rules that require type information
 * **`    --type-check`** —
   Enable experimental type checking (includes TypeScript compiler diagnostics)
+* **`-h`**, **`--help`** —
+  Prints help information
+* **`-V`**, **`--version`** —
+  Prints version information
+
+---
+
+---
+url: /docs/guide/usage/formatter/generated-cli.md
+---
+
+## Usage
+
+**`oxfmt`** \[**`-c`**=*`PATH`*] \[*`PATH`*]...
+
+## Mode Options:
+
+* **`    --init`** —
+  Initialize `.oxfmtrc.json` with default values
+* **`    --migrate`**=*`SOURCE`* —
+  Migrate configuration to `.oxfmtrc.json` from specified source Available sources: prettier, biome
+* **`    --lsp`** —
+  Start language server protocol (LSP) server
+* **`    --stdin-filepath`**=*`PATH`* —
+  Specify the file name to use to infer which parser to use
+
+## Output Options:
+
+* **`    --write`** —
+  Format and write files in place (default)
+* **`    --check`** —
+  Check if files are formatted, also show statistics
+* **`    --list-different`** —
+  List files that would be changed
+
+## Config Options
+
+* **`-c`**, **`--config`**=*`PATH`* —
+  Path to the configuration file (.json, .jsonc, .ts, .mts, .cts, .js, .mjs, .cjs)
+* **`    --disable-nested-config`** —
+  Do not search for configuration files in subdirectories
+
+## Ignore Options
+
+* **`    --ignore-path`**=*`PATH`* —
+  Path to ignore file(s). Can be specified multiple times. If not specified, .gitignore and .prettierignore in the current directory are used.
+* **`    --with-node-modules`** —
+  Format code in node\_modules directory (skipped by default)
+
+## Runtime Options
+
+* **`    --no-error-on-unmatched-pattern`** —
+  Do not exit with error when pattern is unmatched
+* **`    --threads`**=*`INT`* —
+  Number of threads to use. Set to 1 for using only 1 CPU core.
+
+## Available positional items:
+
+* *`PATH`* —
+  Single file, path or list of paths. Glob patterns are also supported. (Be sure to quote them, otherwise your shell may expand them before passing.) Exclude patterns with `!` prefix like `'!**/fixtures/*.js'` are also supported. If not provided, current working directory is used.
+
+## Available options:
+
 * **`-h`**, **`--help`** —
   Prints help information
 * **`-V`**, **`--version`** —
@@ -64415,47 +64820,15 @@ url: /docs/guide/usage/linter/rules/vitest/consistent-test-it.md
 
 ### What it does
 
-Jest allows you to choose how you want to define your tests, using the `it` or
-the `test` keywords, with multiple permutations for each:
+Vitest allows you to choose how you want to define your tests, using the `it`
+or the `test` keywords, with multiple permutations for each:
 
-* **it:** `it`, `xit`, `fit`, `it.only`, `it.skip`.
-* **test:** `test`, `xtest`, `test.only`, `test.skip`.
+* **it:** `it`, `it.only`, `it.skip`, `it.concurrent`, `it.each`.
+* **test:** `test`, `test.only`, `test.skip`, `test.concurrent`, `test.each`.
 
 ### Why is this bad?
 
 It's a good practice to be consistent in your test suite, so that all tests are written in the same way.
-
-### Examples
-
-```javascript
-/* jest/consistent-test-it: ["error", {"fn": "test"}] */
-test("foo"); // valid
-test.only("foo"); // valid
-
-it("foo"); // invalid
-it.only("foo"); // invalid
-```
-
-```javascript
-/* jest/consistent-test-it: ["error", {"fn": "it"}] */
-it("foo"); // valid
-it.only("foo"); // valid
-test("foo"); // invalid
-test.only("foo"); // invalid
-```
-
-```javascript
-/* jest/consistent-test-it: ["error", {"fn": "it", "withinDescribe": "test"}] */
-it("foo"); // valid
-describe("foo", function () {
-  test("bar"); // valid
-});
-
-test("foo"); // invalid
-describe("foo", function () {
-  it("bar"); // invalid
-});
-```
 
 ## Configuration
 
@@ -64469,6 +64842,34 @@ default: `"test"`
 
 Decides whether to use `test` or `it`.
 
+Examples of **incorrect** code for `{ "fn": "test" }`:
+
+```javascript
+it("foo");
+it.only("foo");
+```
+
+Examples of **correct** code for `{ "fn": "test" }`:
+
+```javascript
+test("foo");
+test.only("foo");
+```
+
+Examples of **incorrect** code for `{ "fn": "it" }`:
+
+```javascript
+test("foo");
+test.only("foo");
+```
+
+Examples of **correct** code for `{ "fn": "it" }`:
+
+```javascript
+it("foo");
+it.only("foo");
+```
+
 ### withinDescribe
 
 type: `"it" | "test"`
@@ -64477,6 +64878,22 @@ default: `"it"`
 
 Decides whether to use `test` or `it` within a `describe` scope.
 If only `fn` is provided, this will default to the value of `fn`.
+
+Examples of **incorrect** code for `{ "withinDescribe": "test" }`:
+
+```javascript
+describe("foo", function () {
+  it("bar");
+});
+```
+
+Examples of **correct** code for `{ "withinDescribe": "test" }`:
+
+```javascript
+describe("foo", function () {
+  test("bar");
+});
+```
 
 ## How to use
 
@@ -64871,12 +65288,12 @@ url: /docs/guide/usage/linter/rules/vitest/no-alias-methods.md
 
 ### What it does
 
-This rule ensures that only the canonical name as used in the Jest documentation is used in the code.
+Enforces Vitest's canonical matcher names instead of aliases.
 
 ### Why is this bad?
 
-These aliases are going to be removed in the next major version of Jest - see [jestjs/jest#13164](https://github.com/jestjs/jest/issues/13164) for more.
-This rule will make it easier to search for all occurrences of the method within code, and it ensures consistency among the method names used.
+Vitest matcher aliases are discouraged because they make matcher usage inconsistent.
+This rule makes it easier to search for all occurrences of a matcher and ensures consistency among matcher names.
 
 ### Examples
 
@@ -64910,32 +65327,6 @@ expect(a).toHaveReturnedWith();
 expect(a).toHaveLastReturnedWith();
 expect(a).toHaveNthReturnedWith();
 expect(a).toThrow();
-```
-
-Examples of **incorrect** code for this rule with vitest:
-
-```javascript
-expect(a).toBeCalled();
-expect(a).toBeCalledTimes();
-expect(a).not["toThrowError"]();
-```
-
-Examples of **correct** code for this rule with vitest:
-
-```javascript
-expect(a).toHaveBeenCalled();
-expect(a).toHaveBeenCalledTimes();
-expect(a).toHaveBeenCalledWith();
-expect(a).toHaveBeenLastCalledWith();
-expect(a).toHaveBeenNthCalledWith();
-expect(a).toHaveReturned();
-expect(a).toHaveReturnedTimes();
-expect(a).toHaveReturnedWith();
-expect(a).toHaveLastReturnedWith();
-expect(a).toHaveNthReturnedWith();
-expect(a).toThrow();
-expect(a).rejects;
-expect(a);
 ```
 
 ## How to use
@@ -66040,6 +66431,130 @@ This rule was added in v0.0.13.
 ---
 
 ---
+url: /docs/guide/usage/linter/rules/vitest/no-test-prefixes.md
+---
+
+### What it does
+
+Require using `.only` and `.skip` over `f` and `x`.
+
+### Why is this bad?
+
+Jest allows you to choose how you want to define focused and skipped tests,
+with multiple permutations for each:
+
+* only & skip: it.only, test.only, describe.only, it.skip, test.skip, describe.skip.
+* 'f' & 'x': fit, fdescribe, xit, xtest, xdescribe.
+
+This rule enforces usages from the only & skip list.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+fit("foo"); // invalid
+fdescribe("foo"); // invalid
+xit("foo"); // invalid
+xtest("foo"); // invalid
+xdescribe("foo"); // invalid
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.0.7.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/no-test-return-statement.md
+---
+
+### What it does
+
+Disallow explicitly returning from tests.
+
+### Why is this bad?
+
+Tests in Jest should be void and not return values.
+If you are returning Promises then you should update the test to use
+`async/await`.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+test("one", () => {
+  return expect(1).toBe(1);
+});
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+test("one", () => {
+  expect(1).toBe(1);
+});
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.2.0.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/no-unneeded-async-expect-function.md
+---
+
+### What it does
+
+Disallows unnecessary async function wrapper for expected promises.
+
+### Why is this bad?
+
+When the only statement inside an async wrapper is `await someCall()`,
+the call should be passed directly to `expect` instead. This makes the
+test code more concise and easier to read.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```js
+await expect(async () => {
+  await doSomethingAsync();
+}).rejects.toThrow();
+
+await expect(async () => await doSomethingAsync()).rejects.toThrow();
+```
+
+Examples of **correct** code for this rule:
+
+```js
+await expect(doSomethingAsync()).rejects.toThrow();
+```
+
+## How to use
+
+## Version
+
+This rule was added in v1.39.0.
+
+## References
+
+---
+
+---
 url: /docs/guide/usage/linter/rules/vitest/prefer-called-exactly-once-with.md
 ---
 
@@ -66181,6 +66696,101 @@ This rule was added in v1.35.0.
 ---
 
 ---
+url: /docs/guide/usage/linter/rules/vitest/prefer-called-with.md
+---
+
+### What it does
+
+Suggest using `toBeCalledWith()` or `toHaveBeenCalledWith()`
+
+### Why is this bad?
+
+When testing function calls, it's often more valuable to assert both
+that a function was called AND what arguments it was called with.
+Using `toBeCalled()` or `toHaveBeenCalled()` only verifies the function
+was invoked, but doesn't validate the arguments, potentially missing
+bugs where functions are called with incorrect parameters.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+expect(someFunction).toBeCalled();
+expect(someFunction).toHaveBeenCalled();
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+expect(noArgsFunction).toBeCalledWith();
+expect(roughArgsFunction).toBeCalledWith(expect.anything(), expect.any(Date));
+expect(anyArgsFunction).toBeCalledTimes(1);
+expect(uncalledFunction).not.toBeCalled();
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.2.5.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/prefer-comparison-matcher.md
+---
+
+### What it does
+
+This rule checks for comparisons in tests that could be replaced with one of the
+following built-in comparison matchers:
+
+* `toBeGreaterThan`
+* `toBeGreaterThanOrEqual`
+* `toBeLessThan`
+* `toBeLessThanOrEqual`
+
+### Why is this bad?
+
+Using generic matchers like `toBe(true)` with comparison expressions
+makes tests less readable and provides less helpful error messages when
+they fail. Jest's specific comparison matchers offer clearer intent and
+better error output that shows the actual values being compared.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```js
+expect(x > 5).toBe(true);
+expect(x < 7).not.toEqual(true);
+expect(x <= y).toStrictEqual(true);
+```
+
+Examples of **correct** code for this rule:
+
+```js
+expect(x).toBeGreaterThan(5);
+expect(x).not.toBeLessThanOrEqual(7);
+expect(x).toBeLessThanOrEqual(y);
+// special case - see below
+expect(x < "Carl").toBe(true);
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.2.15.
+
+## References
+
+---
+
+---
 url: /docs/guide/usage/linter/rules/vitest/prefer-describe-function-title.md
 ---
 
@@ -66224,6 +66834,95 @@ describe(myFunction, () => {
 ## Version
 
 This rule was added in v1.39.0.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/prefer-each.md
+---
+
+### What it does
+
+This rule enforces using `each` rather than manual loops.
+
+### Why is this bad?
+
+Manual loops for tests can be less readable and more error-prone. Using
+`each` provides a clearer and more concise way to run parameterized tests,
+improving readability and maintainability.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```js
+for (const item of items) {
+  describe(item, () => {
+    expect(item).toBe("foo");
+  });
+}
+```
+
+Examples of **correct** code for this rule:
+
+```js
+describe.each(items)("item", (item) => {
+  expect(item).toBe("foo");
+});
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.9.0.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/prefer-equality-matcher.md
+---
+
+### What it does
+
+Jest has built-in matchers for expecting equality, which allow for more readable
+tests and error messages if an expectation fails.
+
+### Why is this bad?
+
+Testing equality expressions with generic matchers like `toBe(true)`
+makes tests harder to read and understand. When tests fail, the error
+messages are less helpful because they don't show what the actual values
+were. Using specific equality matchers provides clearer test intent and
+better debugging information.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+expect(x === 5).toBe(true);
+expect(name === "Carl").not.toEqual(true);
+expect(myObj !== thatObj).toStrictEqual(true);
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+expect(x).toBe(5);
+expect(name).not.toEqual("Carl");
+expect(myObj).toStrictEqual(thatObj);
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.2.9.
 
 ## References
 
@@ -66365,6 +67064,72 @@ This rule was added in v1.62.0.
 ---
 
 ---
+url: /docs/guide/usage/linter/rules/vitest/prefer-expect-resolves.md
+---
+
+### What it does
+
+Prefer `await expect(...).resolves` over `expect(await ...)` when testing
+promises.
+
+### Why is this bad?
+
+When working with promises, there are two primary ways you can test the
+resolved value:
+
+1. use the `resolve` modifier on `expect`
+   (`await expect(...).resolves.<matcher>` style)
+2. `await` the promise and assert against its result
+   (`expect(await ...).<matcher>` style)
+
+While the second style is arguably less dependent on `jest`, if the
+promise rejects it will be treated as a general error, resulting in less
+predictable behaviour and output from `jest`.
+
+Additionally, favoring the first style ensures consistency with its
+`rejects` counterpart, as there is no way of "awaiting" a rejection.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+it("passes", async () => {
+  expect(await someValue()).toBe(true);
+});
+it("is true", async () => {
+  const myPromise = Promise.resolve(true);
+  expect(await myPromise).toBe(true);
+});
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+it("passes", async () => {
+  await expect(someValue()).resolves.toBe(true);
+});
+it("is true", async () => {
+  const myPromise = Promise.resolve(true);
+
+  await expect(myPromise).resolves.toBe(true);
+});
+it("errors", async () => {
+  await expect(Promise.reject(new Error("oh noes!"))).rejects.toThrowError("oh noes!");
+});
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.2.14.
+
+## References
+
+---
+
+---
 url: /docs/guide/usage/linter/rules/vitest/prefer-expect-type-of.md
 ---
 
@@ -66413,6 +67178,262 @@ test("type checking", () => {
 ## Version
 
 This rule was added in v1.44.0.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/prefer-hooks-in-order.md
+---
+
+### What it does
+
+Ensures that hooks are in the order that they are called in.
+
+### Why is this bad?
+
+While hooks can be setup in any order, they're always called by `jest` in this
+specific order:
+
+1. `beforeAll`
+2. `beforeEach`
+3. `afterEach`
+4. `afterAll`
+
+This rule aims to make that more obvious by enforcing grouped hooks be setup in
+that order within tests.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+describe("foo", () => {
+  beforeEach(() => {
+    seedMyDatabase();
+  });
+  beforeAll(() => {
+    createMyDatabase();
+  });
+  it("accepts this input", () => {
+    // ...
+  });
+  it("returns that value", () => {
+    // ...
+  });
+  describe("when the database has specific values", () => {
+    const specificValue = "...";
+    beforeEach(() => {
+      seedMyDatabase(specificValue);
+    });
+    it("accepts that input", () => {
+      // ...
+    });
+    it("throws an error", () => {
+      // ...
+    });
+    afterEach(() => {
+      clearLogger();
+    });
+    beforeEach(() => {
+      mockLogger();
+    });
+    it("logs a message", () => {
+      // ...
+    });
+  });
+  afterAll(() => {
+    removeMyDatabase();
+  });
+});
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+describe("foo", () => {
+  beforeAll(() => {
+    createMyDatabase();
+  });
+  beforeEach(() => {
+    seedMyDatabase();
+  });
+  it("accepts this input", () => {
+    // ...
+  });
+  it("returns that value", () => {
+    // ...
+  });
+  describe("when the database has specific values", () => {
+    const specificValue = "...";
+    beforeEach(() => {
+      seedMyDatabase(specificValue);
+    });
+    it("accepts that input", () => {
+      // ...
+    });
+    it("throws an error", () => {
+      // ...
+    });
+    beforeEach(() => {
+      mockLogger();
+    });
+    afterEach(() => {
+      clearLogger();
+    });
+    it("logs a message", () => {
+      // ...
+    });
+  });
+  afterAll(() => {
+    removeMyDatabase();
+  });
+});
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.6.0.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/prefer-hooks-on-top.md
+---
+
+### What it does
+
+While hooks can be setup anywhere in a test file, they are always called in a
+specific order, which means it can be confusing if they're intermixed with test
+cases.
+
+### Why is this bad?
+
+When hooks are mixed with test cases, it becomes harder to understand
+the test setup and execution order. This can lead to confusion about
+which hooks apply to which tests and when they run. Grouping hooks at
+the top of each `describe` block makes the test structure clearer and
+more maintainable.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+describe("foo", () => {
+  beforeEach(() => {
+    seedMyDatabase();
+  });
+
+  it("accepts this input", () => {
+    // ...
+  });
+
+  beforeAll(() => {
+    createMyDatabase();
+  });
+
+  it("returns that value", () => {
+    // ...
+  });
+
+  describe("when the database has specific values", () => {
+    const specificValue = "...";
+    beforeEach(() => {
+      seedMyDatabase(specificValue);
+    });
+
+    it("accepts that input", () => {
+      // ...
+    });
+
+    it("throws an error", () => {
+      // ...
+    });
+
+    afterEach(() => {
+      clearLogger();
+    });
+
+    beforeEach(() => {
+      mockLogger();
+    });
+
+    it("logs a message", () => {
+      // ...
+    });
+  });
+
+  afterAll(() => {
+    removeMyDatabase();
+  });
+});
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+describe("foo", () => {
+  beforeAll(() => {
+    createMyDatabase();
+  });
+
+  beforeEach(() => {
+    seedMyDatabase();
+  });
+
+  afterAll(() => {
+    clearMyDatabase();
+  });
+
+  it("accepts this input", () => {
+    // ...
+  });
+
+  it("returns that value", () => {
+    // ...
+  });
+
+  describe("when the database has specific values", () => {
+    const specificValue = "...";
+
+    beforeEach(() => {
+      seedMyDatabase(specificValue);
+    });
+
+    beforeEach(() => {
+      mockLogger();
+    });
+
+    afterEach(() => {
+      clearLogger();
+    });
+
+    it("accepts that input", () => {
+      // ...
+    });
+
+    it("throws an error", () => {
+      // ...
+    });
+
+    it("logs a message", () => {
+      // ...
+    });
+  });
+});
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.4.2.
 
 ## References
 
@@ -66517,6 +67538,516 @@ This rule was added in v1.59.0.
 ---
 
 ---
+url: /docs/guide/usage/linter/rules/vitest/prefer-lowercase-title.md
+---
+
+### What it does
+
+Enforce `it`, `test`, `describe`, and `bench` to have descriptions that begin with a
+lowercase letter. This provides more readable test failures.
+
+### Why is this bad?
+
+Lowercase messages for test failures generally result in more grammatically correct
+failure messages when you have a test failure.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+it("Adds 1 + 2 to equal 3", () => {
+  expect(sum(1, 2)).toBe(3);
+});
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+it("adds 1 + 2 to equal 3", () => {
+  expect(sum(1, 2)).toBe(3);
+});
+```
+
+## Configuration
+
+This rule accepts a configuration object with the following properties:
+
+### allowedPrefixes
+
+type: `string[]`
+
+default: `[]`
+
+This array option allows specifying prefixes, which contain capitals that titles
+can start with. This can be useful when writing tests for API endpoints, where
+you'd like to prefix with the HTTP method.
+By default, nothing is allowed (the equivalent of `{ "allowedPrefixes": [] }`).
+
+Example of **correct** code for the `{ "allowedPrefixes": ["GET"] }` option:
+
+```js
+/* jest/prefer-lowercase-title: ["error", { "allowedPrefixes": ["GET"] }] */
+describe("GET /live");
+```
+
+### ignore
+
+type: `string[]`
+
+default: `[]`
+
+This array option controls which Jest or Vitest functions are checked by this rule. There
+are four possible values:
+
+* `"describe"`
+* `"test"`
+* `"it"`
+* `"bench"`
+
+By default, none of these options are enabled (the equivalent of
+`{ "ignore": [] }`).
+
+Example of **correct** code for the `{ "ignore": ["describe"] }` option:
+
+```js
+/* jest/prefer-lowercase-title: ["error", { "ignore": ["describe"] }] */
+describe("Uppercase description");
+```
+
+Example of **correct** code for the `{ "ignore": ["test"] }` option:
+
+```js
+/* jest/prefer-lowercase-title: ["error", { "ignore": ["test"] }] */
+test("Uppercase description");
+```
+
+Example of **correct** code for the `{ "ignore": ["it"] }` option:
+
+```js
+/* jest/prefer-lowercase-title: ["error", { "ignore": ["it"] }] */
+it("Uppercase description");
+```
+
+### ignoreTopLevelDescribe
+
+type: `boolean`
+
+default: `false`
+
+This option can be set to allow only the top-level `describe` blocks to have a
+title starting with an upper-case letter.
+
+Example of **correct** code for the `{ "ignoreTopLevelDescribe": true }` option:
+
+```js
+/* jest/prefer-lowercase-title: ["error", { "ignoreTopLevelDescribe": true }] */
+describe("MyClass", () => {
+  describe("#myMethod", () => {
+    it("does things", () => {
+      //
+    });
+  });
+});
+```
+
+### lowercaseFirstCharacterOnly
+
+type: `boolean`
+
+default: `true`
+
+This option can be set to only validate that the first character of a test name is lowercased.
+
+Example of **correct** code for the `{ "lowercaseFirstCharacterOnly": true }` option:
+
+```js
+/* vitest/prefer-lowercase-title: ["error", { "lowercaseFirstCharacterOnly": true }] */
+describe("myClass", () => {
+  describe("myMethod", () => {
+    it("does things", () => {
+      //
+    });
+  });
+});
+```
+
+Example of **incorrect** code for the `{ "lowercaseFirstCharacterOnly": true }` option:
+
+```js
+/* vitest/prefer-lowercase-title: ["error", { "lowercaseFirstCharacterOnly": true }] */
+describe("MyClass", () => {
+  describe("MyMethod", () => {
+    it("does things", () => {
+      //
+    });
+  });
+});
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.15.9.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/prefer-mock-promise-shorthand.md
+---
+
+### What it does
+
+When working with mocks of functions that return promises, Jest provides some
+API sugar functions to reduce the amount of boilerplate you have to write.
+These methods should be preferred when possible.
+
+### Why is this bad?
+
+Using generic mock functions like `mockImplementation(() => Promise.resolve())`
+or `mockReturnValue(Promise.reject())` is more verbose and less readable than
+Jest's specialized promise shorthands. The shorthand methods like
+`mockResolvedValue()` and `mockRejectedValue()` are more expressive and
+make the test intent clearer.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+jest.fn().mockImplementation(() => Promise.resolve(123));
+jest.spyOn(fs.promises, "readFile").mockReturnValue(Promise.reject(new Error("oh noes!")));
+
+myFunction
+  .mockReturnValueOnce(Promise.resolve(42))
+  .mockImplementationOnce(() => Promise.resolve(42))
+  .mockReturnValue(Promise.reject(new Error("too many calls!")));
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+jest.fn().mockResolvedValue(123);
+jest.spyOn(fs.promises, "readFile").mockRejectedValue(new Error("oh noes!"));
+
+myFunction
+  .mockResolvedValueOnce(42)
+  .mockResolvedValueOnce(42)
+  .mockRejectedValue(new Error("too many calls!"));
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.2.16.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/prefer-mock-return-shorthand.md
+---
+
+### What it does
+
+When working with mocks of functions that return simple values, Jest provides some API sugar functions to reduce the amount of boilerplate you have to write.
+
+### Why is this bad?
+
+Not using Jest's API sugar functions adds unnecessary boilerplate and makes tests harder to read. These helpers clearly express intent
+and reduce errors, keeping tests simple and maintainable.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```js
+jest.fn().mockImplementation(() => "hello world");
+
+jest
+  .spyOn(fs.promises, "readFile")
+  .mockImplementationOnce(() => Promise.reject(new Error("oh noes!")));
+
+myFunction
+  .mockImplementationOnce(() => 42)
+  .mockImplementationOnce(() => Promise.resolve(42))
+  .mockReturnValue(0);
+```
+
+Examples of **correct** code for this rule:
+
+```js
+jest.fn().mockResolvedValue(123);
+
+jest.spyOn(fs.promises, "readFile").mockReturnValue(Promise.reject(new Error("oh noes!")));
+jest.spyOn(fs.promises, "readFile").mockRejectedValue(new Error("oh noes!"));
+
+jest.spyOn(fs, "readFileSync").mockImplementationOnce(() => {
+  throw new Error("oh noes!");
+});
+
+myFunction.mockResolvedValueOnce(42).mockResolvedValueOnce(42).mockReturnValue(0);
+```
+
+## How to use
+
+## Version
+
+This rule was added in v1.49.0.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/prefer-snapshot-hint.md
+---
+
+### What it does
+
+Enforces including a hint string with snapshot matchers (toMatchSnapshot and toThrowErrorMatchingSnapshot).
+
+### Why is this bad?
+
+Auto-numbered snapshot names are fragile — adding or reordering assertions shifts all subsequent numbers, causing unrelated snapshots to appear changed and obscuring real differences in code review.
+
+### Examples
+
+Examples of **incorrect** code for this rule configured as `always`:
+
+```js
+const snapshotOutput = ({ stdout, stderr }) => {
+  expect(stdout).toMatchSnapshot();
+  expect(stderr).toMatchSnapshot();
+};
+
+describe("cli", () => {
+  describe("--version flag", () => {
+    it("prints the version", async () => {
+      snapshotOutput(await runCli(["--version"]));
+    });
+  });
+
+  describe("--config flag", () => {
+    it("reads the config", async () => {
+      const { stdout, parsedConfig } = await runCli(["--config", "jest.config.js"]);
+
+      expect(stdout).toMatchSnapshot();
+      expect(parsedConfig).toMatchSnapshot();
+    });
+
+    it("prints nothing to stderr", async () => {
+      const { stderr } = await runCli(["--config", "jest.config.js"]);
+
+      expect(stderr).toMatchSnapshot();
+    });
+
+    describe("when the file does not exist", () => {
+      it("throws an error", async () => {
+        await expect(
+          runCli(["--config", "does-not-exist.js"]),
+        ).rejects.toThrowErrorMatchingSnapshot();
+      });
+    });
+  });
+});
+```
+
+Examples of **incorrect** code for this rule configured as `multi`:
+
+```js
+const snapshotOutput = ({ stdout, stderr }) => {
+  expect(stdout).toMatchSnapshot();
+  expect(stderr).toMatchSnapshot();
+};
+
+describe("cli", () => {
+  describe("--version flag", () => {
+    it("prints the version", async () => {
+      snapshotOutput(await runCli(["--version"]));
+    });
+  });
+
+  describe("--config flag", () => {
+    it("reads the config", async () => {
+      const { stdout, parsedConfig } = await runCli(["--config", "jest.config.js"]);
+
+      expect(stdout).toMatchSnapshot();
+      expect(parsedConfig).toMatchSnapshot();
+    });
+
+    it("prints nothing to stderr", async () => {
+      const { stderr } = await runCli(["--config", "jest.config.js"]);
+
+      expect(stderr).toMatchSnapshot();
+    });
+  });
+});
+```
+
+Examples of **correct** code for this rule configured as `always`:
+
+```js
+const snapshotOutput = ({ stdout, stderr }, hints) => {
+  expect(stdout).toMatchSnapshot({}, `stdout: ${hints.stdout}`);
+  expect(stderr).toMatchSnapshot({}, `stderr: ${hints.stderr}`);
+};
+
+describe("cli", () => {
+  describe("--version flag", () => {
+    it("prints the version", async () => {
+      snapshotOutput(await runCli(["--version"]), {
+        stdout: "version string",
+        stderr: "empty",
+      });
+    });
+  });
+
+  describe("--config flag", () => {
+    it("reads the config", async () => {
+      const { stdout } = await runCli(["--config", "jest.config.js"]);
+
+      expect(stdout).toMatchSnapshot({}, "stdout: config settings");
+    });
+
+    it("prints nothing to stderr", async () => {
+      const { stderr } = await runCli(["--config", "jest.config.js"]);
+
+      expect(stderr).toMatchInlineSnapshot();
+    });
+
+    describe("when the file does not exist", () => {
+      it("throws an error", async () => {
+        await expect(
+          runCli(["--config", "does-not-exist.js"]),
+        ).rejects.toThrowErrorMatchingSnapshot("stderr: config error");
+      });
+    });
+  });
+});
+```
+
+Examples of **correct** code for this rule configured as `multi`:
+
+```js
+const snapshotOutput = ({ stdout, stderr }, hints) => {
+  expect(stdout).toMatchSnapshot({}, `stdout: ${hints.stdout}`);
+  expect(stderr).toMatchSnapshot({}, `stderr: ${hints.stderr}`);
+};
+
+describe("cli", () => {
+  describe("--version flag", () => {
+    it("prints the version", async () => {
+      snapshotOutput(await runCli(["--version"]), {
+        stdout: "version string",
+        stderr: "empty",
+      });
+    });
+  });
+
+  describe("--config flag", () => {
+    it("reads the config", async () => {
+      const { stdout } = await runCli(["--config", "jest.config.js"]);
+
+      expect(stdout).toMatchSnapshot();
+    });
+
+    it("prints nothing to stderr", async () => {
+      const { stderr } = await runCli(["--config", "jest.config.js"]);
+
+      expect(stderr).toMatchInlineSnapshot();
+    });
+
+    describe("when the file does not exist", () => {
+      it("throws an error", async () => {
+        await expect(
+          runCli(["--config", "does-not-exist.js"]),
+        ).rejects.toThrowErrorMatchingSnapshot();
+      });
+    });
+  });
+});
+```
+
+## Configuration
+
+This rule accepts one of the following string values:
+
+### `"always"`
+
+Require a hint to always be provided when using external snapshot matchers.
+
+### `"multi"`
+
+Require a hint to be provided when there are multiple external snapshot matchers within the scope (meaning it includes nested calls).
+
+## How to use
+
+## Version
+
+This rule was added in v1.59.0.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/prefer-spy-on.md
+---
+
+### What it does
+
+When mocking a function by overwriting a property you have to manually restore
+the original implementation when cleaning up. When using `jest.spyOn()` Jest
+keeps track of changes, and they can be restored with `jest.restoreAllMocks()`,
+`mockFn.mockRestore()` or by setting `restoreMocks` to `true` in the Jest
+config.
+
+Note: The mock created by `jest.spyOn()` still behaves the same as the original
+function. The original function can be overwritten with
+`mockFn.mockImplementation()` or by some of the
+[other mock functions](https://jestjs.io/docs/en/mock-function-api).
+
+### Why is this bad?
+
+Directly overwriting properties with mock functions can lead to cleanup issues
+and test isolation problems. When you manually assign a mock to a property,
+you're responsible for restoring the original implementation, which is easy to
+forget and can cause tests to interfere with each other. Using `jest.spyOn()`
+provides automatic cleanup capabilities and makes your tests more reliable.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+Date.now = jest.fn();
+Date.now = jest.fn(() => 10);
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+jest.spyOn(Date, "now");
+jest.spyOn(Date, "now").mockImplementation(() => 10);
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.2.14.
+
+## References
+
+---
+
+---
 url: /docs/guide/usage/linter/rules/vitest/prefer-strict-boolean-matchers.md
 ---
 
@@ -66554,6 +68085,95 @@ expectTypeOf(foo).toBe(false);
 ## Version
 
 This rule was added in v1.57.0.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/prefer-strict-equal.md
+---
+
+### What it does
+
+This rule triggers a warning if `toEqual()` is used to assert equality.
+
+### Why is this bad?
+
+The `toEqual()` matcher performs a deep equality check but ignores
+`undefined` values in objects and arrays. This can lead to false
+positives where tests pass when they should fail. `toStrictEqual()`
+provides more accurate comparison by checking for `undefined` values.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+expect({ a: "a", b: undefined }).toEqual({ a: "a" });
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+expect({ a: "a", b: undefined }).toStrictEqual({ a: "a" });
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.2.13.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/prefer-to-be.md
+---
+
+### What it does
+
+Recommends using `toBe` matcher for primitive literals and specific
+matchers for `null`, `undefined`, and `NaN`.
+
+### Why is this bad?
+
+When asserting against primitive literals such as numbers and strings,
+the equality matchers all operate the same, but read slightly
+differently in code.
+
+This rule recommends using the `toBe` matcher in these situations, as
+it forms the most grammatically natural sentence. For `null`,
+`undefined`, and `NaN` this rule recommends using their specific `toBe`
+matchers, as they give better error messages as well.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+expect(value).not.toEqual(5);
+expect(getMessage()).toStrictEqual("hello world");
+expect(loadMessage()).resolves.toEqual("hello world");
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+expect(value).not.toBe(5);
+expect(getMessage()).toBe("hello world");
+expect(loadMessage()).resolves.toBe("hello world");
+expect(didError).not.toBe(true);
+expect(catchError()).toStrictEqual({ message: "oh noes!" });
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.2.14.
 
 ## References
 
@@ -66726,6 +68346,89 @@ This rule was added in v0.2.14.
 ---
 
 ---
+url: /docs/guide/usage/linter/rules/vitest/prefer-to-have-been-called-times.md
+---
+
+### What it does
+
+In order to have a better failure message, [`toHaveBeenCalledTimes` should be used
+instead of directly checking the length of `mock.calls`](https://github.com/jest-community/eslint-plugin-jest/blob/v29.5.0/docs/rules/prefer-to-have-been-called-times.md).
+
+### Why is this bad?
+
+This rule triggers a warning if `toHaveLength` is used to assert the number of times a mock is called.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```js
+expect(someFunction.mock.calls).toHaveLength(1);
+expect(someFunction.mock.calls).toHaveLength(0);
+expect(someFunction.mock.calls).not.toHaveLength(1);
+```
+
+Examples of **correct** code for this rule:
+
+```js
+expect(someFunction).toHaveBeenCalledTimes(1);
+expect(someFunction).toHaveBeenCalledTimes(0);
+expect(someFunction).not.toHaveBeenCalledTimes(0);
+expect(uncalledFunction).not.toBeCalled();
+expect(method.mock.calls[0][0]).toStrictEqual(value);
+```
+
+## How to use
+
+## Version
+
+This rule was added in v1.34.0.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/prefer-to-have-length.md
+---
+
+### What it does
+
+In order to have a better failure message, `toHaveLength()` should be used upon
+asserting expectations on objects length property.
+
+### Why is this bad?
+
+This rule triggers a warning if `toBe()`, `toEqual()` or `toStrictEqual()` is
+used to assert objects length property.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+expect(files["length"]).toBe(1);
+expect(files["length"]).toBe(1);
+expect(files["length"])["not"].toBe(1);
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+expect(files).toHaveLength(1);
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.2.13.
+
+## References
+
+---
+
+---
 url: /docs/guide/usage/linter/rules/vitest/prefer-todo.md
 ---
 
@@ -66810,6 +68513,150 @@ test("element exists", async () => {
 ## Version
 
 This rule was added in v1.58.0.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/require-hook.md
+---
+
+### What it does
+
+This rule flags any expression that is either at the toplevel of a test file or
+directly within the body of a `describe`, *except* for the following:
+
+* `import` statements
+* `const` variables
+* `let` *declarations*, and initializations to `null` or `undefined`
+* Classes
+* Types
+* Calls to the standard Jest globals
+
+### Why is this bad?
+
+Having setup and teardown code outside of hooks can lead to unpredictable test
+behavior. Code that runs at the top level executes when the test file is loaded,
+not when tests run, which can cause issues with test isolation and make tests
+dependent on execution order. Using proper hooks like `beforeEach`, `beforeAll`,
+`afterEach`, and `afterAll` ensures that setup and teardown code runs at the
+correct time and maintains test isolation.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+import { database, isCity } from "../database";
+import { Logger } from "../../../src/Logger";
+import { loadCities } from "../api";
+
+jest.mock("../api");
+
+const initializeCityDatabase = () => {
+  database.addCity("Vienna");
+  database.addCity("San Juan");
+  database.addCity("Wellington");
+};
+
+const clearCityDatabase = () => {
+  database.clear();
+};
+
+initializeCityDatabase();
+
+test("that persists cities", () => {
+  expect(database.cities.length).toHaveLength(3);
+});
+test("city database has Vienna", () => {
+  expect(isCity("Vienna")).toBeTruthy();
+});
+
+test("city database has San Juan", () => {
+  expect(isCity("San Juan")).toBeTruthy();
+});
+
+describe("when loading cities from the api", () => {
+  let consoleWarnSpy = jest.spyOn(console, "warn");
+  loadCities.mockResolvedValue(["Wellington", "London"]);
+
+  it("does not duplicate cities", async () => {
+    await database.loadCities();
+    expect(database.cities).toHaveLength(4);
+  });
+});
+clearCityDatabase();
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+import { database, isCity } from "../database";
+import { Logger } from "../../../src/Logger";
+import { loadCities } from "../api";
+
+jest.mock("../api");
+const initializeCityDatabase = () => {
+  database.addCity("Vienna");
+  database.addCity("San Juan");
+  database.addCity("Wellington");
+};
+
+const clearCityDatabase = () => {
+  database.clear();
+};
+
+beforeEach(() => {
+  initializeCityDatabase();
+});
+
+test("that persists cities", () => {
+  expect(database.cities.length).toHaveLength(3);
+});
+
+test("city database has Vienna", () => {
+  expect(isCity("Vienna")).toBeTruthy();
+});
+
+test("city database has San Juan", () => {
+  expect(isCity("San Juan")).toBeTruthy();
+});
+
+describe("when loading cities from the api", () => {
+  let consoleWarnSpy;
+  beforeEach(() => {
+    consoleWarnSpy = jest.spyOn(console, "warn");
+    loadCities.mockResolvedValue(["Wellington", "London"]);
+  });
+
+  it("does not duplicate cities", async () => {
+    await database.loadCities();
+    expect(database.cities).toHaveLength(4);
+  });
+});
+afterEach(() => {
+  clearCityDatabase();
+});
+```
+
+## Configuration
+
+This rule accepts a configuration object with the following properties:
+
+### allowedFunctionCalls
+
+type: `string[]`
+
+default: `[]`
+
+An array of function names that are allowed to be called outside of hooks.
+
+## How to use
+
+## Version
+
+This rule was added in v0.3.2.
 
 ## References
 
@@ -67017,6 +68864,56 @@ This rule was added in v1.58.0.
 ---
 
 ---
+url: /docs/guide/usage/linter/rules/vitest/require-to-throw-message.md
+---
+
+### What it does
+
+This rule triggers a warning if `toThrow()` or `toThrowError()` is used without an error message.
+
+### Why is this bad?
+
+Using `toThrow()` or `toThrowError()` without specifying an expected error message
+makes tests less specific and harder to debug. When a test only checks that an
+error was thrown but not what kind of error, it can pass even when the wrong
+error is thrown, potentially hiding bugs. Providing an expected error message
+or error type makes tests more precise and helps catch regressions more effectively.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+test("all the things", async () => {
+  expect(() => a()).toThrow();
+  expect(() => a()).toThrowError();
+  await expect(a()).rejects.toThrow();
+  await expect(a()).rejects.toThrowError();
+});
+```
+
+Examples of **correct** code for this rule:
+
+```javascript
+test("all the things", async () => {
+  expect(() => a()).toThrow("a");
+  expect(() => a()).toThrowError("a");
+  await expect(a()).rejects.toThrow("a");
+  await expect(a()).rejects.toThrowError("a");
+});
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.2.9.
+
+## References
+
+---
+
+---
 url: /docs/guide/usage/linter/rules/vitest/require-top-level-describe.md
 ---
 
@@ -67090,6 +68987,57 @@ The maximum number of top-level `describe` blocks allowed in a test file.
 ## Version
 
 This rule was added in v0.4.2.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vitest/valid-describe-callback.md
+---
+
+### What it does
+
+This rule validates that the second parameter of a `describe()` function is a
+callback function. This callback function:
+
+* should not be
+  [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function)
+* should not contain any parameters
+* should not contain any `return` statements
+
+### Why is this bad?
+
+Using an improper `describe()` callback function can lead to unexpected test
+errors.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```javascript
+// Async callback functions are not allowed
+describe("myFunction()", async () => {
+  // ...
+});
+
+// Callback function parameters are not allowed
+describe("myFunction()", (done) => {
+  // ...
+});
+
+// Returning a value from a describe block is not allowed
+describe("myFunction", () =>
+  it("returns a truthy value", () => {
+    expect(myFunction()).toBeTruthy();
+  }));
+```
+
+## How to use
+
+## Version
+
+This rule was added in v0.0.8.
 
 ## References
 
@@ -68020,6 +69968,76 @@ This rule was added in v1.62.0.
 ---
 
 ---
+url: /docs/guide/usage/linter/rules/vue/no-deprecated-model-definition.md
+---
+
+### What it does
+
+Disallow deprecated `model` definition (in Vue.js 3.0.0+).
+
+### Why is this bad?
+
+Vue 3 removed the per-component `model` option. Instead, `v-model`
+works through the `modelValue` prop and the `update:modelValue` event,
+so a `model: { prop, event }` block is no longer needed.
+
+With `{ "allowVue3Compat": true }`, a `model` block is allowed if it
+already uses the Vue 3-compatible `modelValue` / `update:modelValue`
+(or kebab-case `model-value` / `update:model-value`) pair, easing
+migration.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```vue
+<script>
+export default {
+  model: {
+    prop: "foo",
+    event: "update",
+  },
+};
+</script>
+```
+
+Examples of **correct** code for this rule with the
+`{ "allowVue3Compat": true }` option:
+
+```vue
+<script>
+export default {
+  model: {
+    prop: "modelValue",
+    event: "update:modelValue",
+  },
+};
+</script>
+```
+
+## Configuration
+
+### allowVue3Compat
+
+type: `boolean`
+
+default: `false`
+
+Allow `model: { prop: 'modelValue', event: 'update:modelValue' }` (or
+the kebab-case `model-value` variant) which is forwards-compatible with
+Vue 3's `v-model`.
+
+## How to use
+
+## Version
+
+This rule was added in v1.63.0.
+
+## References
+
+---
+
+---
 url: /docs/guide/usage/linter/rules/vue/no-deprecated-vue-config-keycodes.md
 ---
 
@@ -68493,6 +70511,71 @@ const a = ref(0);
 ## Version
 
 This rule was added in v1.17.0.
+
+## References
+
+---
+
+---
+url: /docs/guide/usage/linter/rules/vue/return-in-computed-property.md
+---
+
+### What it does
+
+Enforce that a `return` statement is present in every computed property.
+
+### Why is this bad?
+
+A Vue computed property is a getter that must produce a value. Forgetting
+to return turns the value into `undefined`, which silently breaks
+templates and reactive code that depend on the computed.
+
+### Examples
+
+Examples of **incorrect** code for this rule:
+
+```vue
+<script>
+export default {
+  computed: {
+    foo() {
+      // missing return
+    },
+  },
+};
+</script>
+```
+
+Examples of **correct** code for this rule:
+
+```vue
+<script>
+export default {
+  computed: {
+    foo() {
+      return this.bar;
+    },
+  },
+};
+</script>
+```
+
+## Configuration
+
+### treatUndefinedAsUnspecified
+
+type: `boolean`
+
+default: `true`
+
+When `true` (default), `return;` (without a value) is treated as a missing return.
+Set to `false` to allow bare `return;` as if it returned a value.
+
+## How to use
+
+## Version
+
+This rule was added in v1.63.0.
 
 ## References
 
